@@ -4,6 +4,7 @@
 [![bandplot](https://img.shields.io/pypi/dm/bandplot?style=flat-square)](https://pypi.org/project/bandplot/)
 [![bandplot](https://img.shields.io/pypi/wheel/bandplot?style=flat-square)](https://pypi.org/project/bandplot/)
 [![bandplot](https://img.shields.io/github/last-commit/lkccrr/bandplot?style=flat-square)](https://github.com/lkccrr/bandplot)
+[![bandplot](https://img.shields.io/github/release-date/lkccrr/bandplot?style=flat-square)](https://github.com/lkccrr/bandplot)
 
 ### bandplot
 
