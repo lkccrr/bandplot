@@ -10,7 +10,7 @@
 Bandplot is used for plotting the band structure, DOS or phonon band structure plot from ***vaspkit*** or ***phonopy*** results. The code will provide two scripts, $\color{blue}{bandplot}$ for band structure or DOS plotting from ***vaspkit*** $\color{darkred}{\*.dat}$ results, and $\color{blue}{pbandplot}$ for phonon band structure or DOS plotting from ***phonopy*** $\color{darkred}{\*.dat}$ results.
 ***
 $\color{blue}{bandplot}$
-* To execute $\color{blue}{bandplot}$ $\color{red}{-h}$ for the parameters to use.
+* To execute $\color{blue}{bandplot}$ \-$\color{red}{h}$ for the parameters to use.
 * Example:
 ``` bash
 bandplot -h
@@ -19,7 +19,7 @@ bandplot -b -l g m k g -y -5 2
 ```
 ***
 $\color{blue}{pbandplot}$
-* To execute $\color{blue}{pbandplot}$ $\color{red}{-h}$ for the parameters to use.
+* To execute $\color{blue}{pbandplot}$ \-$\color{red}{h}$ for the parameters to use.
 * Example:
 ``` bash
 pbandplot -h
