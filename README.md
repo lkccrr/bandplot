@@ -8,19 +8,19 @@
 
 ### bandplot
 
-Bandplot is used for plotting the band structure, DOS or phonon band structure plot from ***vaspkit*** or ***phonopy*** results. The code will provide two scripts, $\color{blue}{bandplot}$ for band structure or DOS plotting from ***vaspkit*** $\color{darkred}{\*.dat}$ results, and $\color{blue}{pbandplot}$ for phonon band structure or DOS plotting from ***phonopy*** $\color{darkred}{\*.dat}$ results.
+Bandplot is used for plotting the band structure, DOS or phonon band structure plot from ***vaspkit*** or ***phonopy*** results. The code will provide two scripts, <b style="color:blue;"><i>bandplot</b></i> for band structure or DOS plotting from ***vaspkit*** <b style="color:darkred;"><i>\*.dat</b></i> files, and <b style="color:blue;"><i>pbandplot</b></i> for phonon band structure or DOS plotting from ***phonopy*** <b style="color:darkred;"><i>\*.dat</b></i> files.
 ***
-$\color{blue}{bandplot}$
-* To execute $\color{blue}{bandplot}\color{red}\mbox{ -}{h}$ for the parameters to use.
+<b style="color:blue;"><i>bandplot</b></i>
+* To execute <b style="color:blue;"><i>bandplot</b></i> <b style="color:red;"><i>-h</b></i> for the parameters to use.
 * Example:
 ```bash
 bandplot -h
-bandplot -i band.dat -o band.png -l g m k g -d PDOS*
+bandplot -i band.dat -o band.png -l g m k g -d PDOS* -F
 bandplot -b -l g m k g -y -5 2
 ```
 ***
-$\color{blue}{pbandplot}$
-* To execute $\color{blue}{pbandplot}\color{red}\mbox{ -}{h}$ for the parameters to use.
+<b style="color:blue;"><i>pbandplot</b></i>
+* To execute <b style="color:blue;"><i>pbandplot</b></i> <b style="color:red;"><i>-h</b></i> for the parameters to use.
 * Example:
 ```bash
 pbandplot -h
