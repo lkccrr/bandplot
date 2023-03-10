@@ -11,7 +11,7 @@
 Bandplot is used for plotting the band structure, DOS or phonon band structure plot from ***vaspkit*** or ***phonopy*** results. The code will provide two scripts, <b style="color:blue;"><i>bandplot</b></i> for band structure or DOS plotting from ***vaspkit*** <b style="color:darkred;"><i>\*.dat</b></i> files, and <b style="color:blue;"><i>pbandplot</b></i> for phonon band structure or DOS plotting from ***phonopy*** <b style="color:darkred;"><i>\*.dat</b></i> files.
 ***
 <b style="color:blue;"><i>bandplot</b></i>
-* To execute <b style="color:blue;"><i>bandplot</b></i> <b style="color:red;"><i>-h</b></i> for the parameters to use.
+* To execute <b style="color:blue;"><i>bandplot</b></i> <b style="color:red;"><i>\-h</b></i> for the parameters to use.
 * Example:
 ```bash
 bandplot -h
@@ -20,7 +20,7 @@ bandplot -b -l g m k g -y -5 2
 ```
 ***
 <b style="color:blue;"><i>pbandplot</b></i>
-* To execute <b style="color:blue;"><i>pbandplot</b></i> <b style="color:red;"><i>-h</b></i> for the parameters to use.
+* To execute <b style="color:blue;"><i>pbandplot</b></i> <b style="color:red;"><i>\-h</b></i> for the parameters to use.
 * Example:
 ```bash
 pbandplot -h
