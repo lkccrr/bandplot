@@ -3,16 +3,10 @@ import re
 
 def klabels(KLABELS):
     with open(KLABELS, "r") as main_file:
-        lines = main_file.read()
-    lines=lines.split('\n')[1:]
-    LABELS=[]
-    for i in lines:
-        if len(i.split()) == 0:
-            break
-        LABELS=LABELS+[i.split()]
-    if len(LABELS) > 1:
-        ticks=[float(i[1]) for i in LABELS]
-        labels=[i[0] for i in LABELS]
+        lines = main_file.readlines()[1:]
+    LABELS = [line.split() for line in lines if len(line.split()) == 2]
+    ticks  = [float(label[1]) for label in LABELS]
+    labels = [label[0] for label in LABELS]
     return ticks, labels
 
 def dos(DOS):
@@ -24,14 +18,13 @@ def dos(DOS):
             lines = main_file.readlines()
         arr = []
         ele = []
-        for i in lines[1:]:
-            str = i.split()
-            if len(str) > 0:
-                j = [float(k) for k in str]
-                arr.append(j[0])
-                ele.append(j[1:])
+        for line in lines[1:]:
+            values = [float(val) for val in line.split() if val]
+            if values:
+                arr.append(values[0])
+                ele.append(values[1:])
         ARR.append(np.array(arr))
-        ELE.append(np.array(ele).reshape(len(arr),-1))
+        ELE.append(np.array(ele))
         s_elements.append([re.sub('.dat|^[A-Za-z]+_', '', pdos)] + lines[0].split()[1:])
     return ARR, ELE, s_elements
 
@@ -146,7 +139,7 @@ def symbols(POSCAR):
 def pbands(PLOT):
     with open(PLOT, "r") as main_file:
         lines = main_file.readlines()
-    ticks = [float(i) for i in lines[1].split()[1:]]
+    ticks = [float(i) for i in lines[1].replace("#","").split()]
     arr = []
     fre = []
     k = 0
@@ -166,17 +159,8 @@ def pbands(PLOT):
     return arr, fre, ticks
 
 def pdos(DOS):
-    with open(DOS, "r") as main_file:
-        lines = main_file.readlines()
-    arr = []
-    ele = []
-    for i in lines[1:]:
-        str = i.split()
-        if len(str) > 0:
-            j = [float(k) for k in str]
-            arr.append(j[0])
-            ele.append(j[1:])
-    arr = np.array(arr)
-    ele = np.array(ele).reshape(len(arr),-1)
+    data = np.loadtxt(DOS)
+    arr = data[:, 0]
+    ele = data[:, 1:]
     return arr, ele
 

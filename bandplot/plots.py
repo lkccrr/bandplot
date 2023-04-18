@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
 
-def Noneispin(EXPORT, figsize, vertical, arr, bands, ticks, labels, linestyle, legend, location, color):
+# bandplot
+
+def Noneispin(EXPORT, figsize, vertical, arr, bands, ticks, labels, linestyle, linewidth, legend, location, color):
     plt.figure(figsize=figsize)
     if len(color) == 0:
         color = ['r']
 
-    plt.plot(arr, bands.T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
+    plt.plot(arr, bands.T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     plt.tick_params(axis='y', which='minor', color='gray')
 
     plt.axhline(linewidth=0.4, linestyle='-.', c='gray')
@@ -21,16 +23,21 @@ def Noneispin(EXPORT, figsize, vertical, arr, bands, ticks, labels, linestyle, l
     plt.ylabel('Energy (eV)')
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
-def Ispin(EXPORT, figsize, vertical, arr, bands, ticks, labels, linestyle, legend, location, color):
+def Ispin(EXPORT, figsize, vertical, arr, bands, ticks, labels, linestyle, linewidth, legend, location, color):
     plt.figure(figsize=figsize)
-    if len(color) < 2:
+    if len(color) == 0:
         color = ['r', 'k']
+    elif len(color) == 1:
+        color = [color[0], 'k']
 
-    if len(linestyle) < 2:
-        linestyle = ['-', '-.']
+    if len(linestyle) == 1:
+        linestyle = [linestyle[0], '-.']
 
-    p_up = plt.plot(arr, bands[0].T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
-    p_do = plt.plot(arr, bands[1].T, color=color[1], linewidth=0.8, linestyle=linestyle[1])
+    if len(linewidth) == 1:
+        linewidth = [linewidth[0], 0.8]
+
+    p_up = plt.plot(arr, bands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
+    p_do = plt.plot(arr, bands[1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
     plt.legend([p_up[0], p_do[0]], ['up', 'down'], frameon=False, prop={'style':'italic', 'size':'medium'}, alignment='left', loc=location, title=legend[0], title_fontproperties={'size':'medium'})
     plt.tick_params(axis='y', which='minor', color='gray')
     plt.axhline(linewidth=0.4, linestyle='-.', c='gray')
@@ -45,17 +52,22 @@ def Ispin(EXPORT, figsize, vertical, arr, bands, ticks, labels, linestyle, legen
     plt.ylabel('Energy (eV)')
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
-def Dispin(EXPORT, figsize, vertical, arr, bands, ticks, labels, linestyle, legend, location, color):
+def Dispin(EXPORT, figsize, vertical, arr, bands, ticks, labels, linestyle, linewidth, legend, location, color):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
     fig.subplots_adjust(wspace=0.0)
-    if len(color) < 2:
+    if len(color) == 0:
         color = ['r', 'k']
+    elif len(color) == 1:
+        color = [color[0], 'k']
 
-    if len(linestyle) < 2:
-        linestyle = ['-', '-.']
+    if len(linestyle) == 1:
+        linestyle = [linestyle[0], '-.']
 
-    ax1.plot(arr, bands[0].T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
-    ax2.plot(arr, bands[1].T, color=color[1], linewidth=0.8, linestyle=linestyle[1])
+    if len(linewidth) == 1:
+        linewidth = [linewidth[0], 0.8]
+
+    ax1.plot(arr, bands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
+    ax2.plot(arr, bands[1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
     ax1.legend(['up'], frameon=False, prop={'style':'italic', 'size':'medium'}, alignment='left', loc=location, title=legend[0], title_fontproperties={'size':'medium'})
     ax2.legend(['down'], frameon=False, prop={'style':'italic', 'size':'medium'}, alignment='left', loc=location)
     ax1.tick_params(axis='y', which='minor', color='gray')
@@ -79,32 +91,40 @@ def Dispin(EXPORT, figsize, vertical, arr, bands, ticks, labels, linestyle, lege
     ax1.set_ylabel('Energy (eV)')
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
-def NoneispinWd(EXPORT, figsize, vertical, horizontal, arr, bands, ticks, labels, darr, dele, index_f, elements, width_ratios, linestyle, legend, location, color):
+def NoneispinWd(EXPORT, figsize, vertical, horizontal, arr, bands, ticks, labels, darr, dele, fill, index_f, elements, width_ratios, linestyle, linewidth, legend, location, color):
     fig, (ax1, ax2) = plt.subplots(1, 2, width_ratios=[1-width_ratios, width_ratios], figsize=figsize)
     fig.subplots_adjust(wspace=0.0)
     if len(color) == 0:
         color = ['r']
 
-    ax1.plot(arr, bands.T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
+    ax1.plot(arr, bands.T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     num = len(index_f)
+    p_dos = []
     if num + 1 > len(color):
         color = color + [''] * (num + 1 - len(color))
 
     if num + 1 > len(linestyle):
         linestyle = linestyle + ['-'] * (num + 1 - len(linestyle))
 
+    if num + 1 > len(linewidth):
+        linewidth = linewidth + [0.8] * (num + 1 - len(linewidth))
+
     for i in range(num):
         if color[i+1]:
-            ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i+1], color=color[i+1])
+            ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+1], linestyle=linestyle[i+1], color=color[i+1])
+            if fill:
+                plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, color=color[i+2], alpha=0.2)
         else:
-            ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i+1])
+            ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+1], linestyle=linestyle[i+1])
+            if fill:
+                plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, alpha=0.2)
 
     ax1.legend(legend, frameon=False, prop={'size':'small'}, loc=location)
     ax1.tick_params(axis='y', which='minor', color='gray')
     ax2.minorticks_on()
     ax2.tick_params(axis='both', which='minor', color='gray')
     ax2.set_yticklabels([])
-    ax2.legend(elements, frameon=False, prop={'size':'small'}, alignment='left', loc=location, title="Density of states", title_fontproperties={'size':'small'})
+    ax2.legend(p_dos, elements, frameon=False, prop={'size':'small'}, alignment='left', loc=location, title="Density of states", title_fontproperties={'size':'small'})
     ax1.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.axvline(linewidth=0.4, linestyle='-.', c='gray')
@@ -122,37 +142,50 @@ def NoneispinWd(EXPORT, figsize, vertical, horizontal, arr, bands, ticks, labels
     ax1.set_ylabel('Energy (eV)')
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
-def IspinWd(EXPORT, figsize, vertical, horizontal, arr, bands, ticks, labels, darr, dele, index_f, elements, width_ratios, linestyle, legend, location, color):
+def IspinWd(EXPORT, figsize, vertical, horizontal, arr, bands, ticks, labels, darr, dele, fill, index_f, elements, width_ratios, linestyle, linewidth, legend, location, color):
     fig, (ax1, ax2) = plt.subplots(1, 2, width_ratios=[1-width_ratios, width_ratios], figsize=figsize)
     fig.subplots_adjust(wspace=0.0)
-    if len(color) < 2:
+    if len(color) == 0:
         color = ['r', 'k']
+    elif len(color) == 1:
+        color = [color[0], 'k']
 
-    if len(linestyle) < 2:
-        linestyle = ['-', '-.']
+    if len(linestyle) == 1:
+        linestyle = [linestyle[0], '-.']
 
-    p_up = ax1.plot(arr, bands[0].T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
-    p_do = ax1.plot(arr, bands[1].T, color=color[1], linewidth=0.8, linestyle=linestyle[1])
+    if len(linewidth) == 1:
+        linewidth = [linewidth[0], 0.8]
+
+    p_up = ax1.plot(arr, bands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
+    p_do = ax1.plot(arr, bands[1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
     ax1.legend([p_up[0], p_do[0]], ['up', 'down'], frameon=False, prop={'style':'italic', 'size':'small'}, alignment='left', loc=location, title=legend[0], title_fontproperties={'size':'small'})
     num = len(index_f)
+    p_dos = []
     if num + 2 > len(color):
         color = color + [''] * (num + 2 - len(color))
 
     if num + 2 > len(linestyle):
         linestyle = linestyle + ['-'] * (num + 2 - len(linestyle))
 
+    if num + 2 > len(linewidth):
+        linewidth = linewidth + [0.8] * (num + 2 - len(linewidth))
+
     for i in range(num):
         if color[i+2]:
-            ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i+2], color=color[i+2])
+            p_dos = p_dos + ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2], color=color[i+2])
+            if fill:
+                plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, color=color[i+2], alpha=0.2)
         else:
-            ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i+2])
+            p_dos = p_dos + ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2])
+            if fill:
+                plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, alpha=0.2)
 
     ax1.tick_params(axis='y', which='minor', color='gray')
     ax2.minorticks_on()
     ax2.tick_params(axis='both', which='minor', color='gray')
     ax2.axvline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.set_yticklabels([])
-    ax2.legend(elements, frameon=False, prop={'size':'small'}, alignment='left', loc=location, title="Density of states", title_fontproperties={'size':'small'})
+    ax2.legend(p_dos, elements, frameon=False, prop={'size':'small'}, alignment='left', loc=location, title="Density of states", title_fontproperties={'size':'small'})
     ax1.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.axhline(linewidth=0.4, linestyle='-.', c='gray')
     if len(ticks) > 2:
@@ -169,17 +202,22 @@ def IspinWd(EXPORT, figsize, vertical, horizontal, arr, bands, ticks, labels, da
     ax1.set_ylabel('Energy (eV)')
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
-def DispinWd(EXPORT, figsize, vertical, horizontal, arr, bands, ticks, labels, darr, dele, index_f, elements, width_ratios, linestyle, legend, location, color):
+def DispinWd(EXPORT, figsize, vertical, horizontal, arr, bands, ticks, labels, darr, dele, fill, index_f, elements, width_ratios, linestyle, linewidth, legend, location, color):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, width_ratios=[0.4*(1-width_ratios), 0.4*(1-width_ratios), width_ratios], figsize=figsize)
     fig.subplots_adjust(wspace=0.0)
-    if len(color) < 2:
+    if len(color) == 0:
         color = ['r', 'k']
+    elif len(color) == 1:
+        color = [color[0], 'k']
 
-    if len(linestyle) < 2:
-        linestyle = ['-', '-.']
+    if len(linestyle) == 1:
+        linestyle = [linestyle[0], '-.']
 
-    ax1.plot(arr, bands[0].T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
-    ax2.plot(arr, bands[1].T, color=color[1], linewidth=0.8, linestyle=linestyle[1])
+    if len(linewidth) == 1:
+        linewidth = [linewidth[0], 0.8]
+
+    ax1.plot(arr, bands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
+    ax2.plot(arr, bands[1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
     ax1.legend(['up'], frameon=False, prop={'style':'italic', 'size':'small'}, alignment='left', loc=location, title=legend[0], title_fontproperties={'size':'small'})
     ax2.legend(['down'], frameon=False, prop={'style':'italic', 'size':'small'}, alignment='left', loc=location)
     ax1.tick_params(axis='y', which='minor', color='gray')
@@ -187,22 +225,30 @@ def DispinWd(EXPORT, figsize, vertical, horizontal, arr, bands, ticks, labels, d
     ax3.minorticks_on()
     ax3.tick_params(axis='both', which='minor', color='gray')
     num = len(index_f)
+    p_dos = []
     if num + 2 > len(color):
         color = color + [''] * (num + 2 - len(color))
 
     if num + 2 > len(linestyle):
         linestyle = linestyle + ['-'] * (num + 2 - len(linestyle))
 
+    if num + 2 > len(linewidth):
+        linewidth = linewidth + [0.8] * (num + 2 - len(linewidth))
+
     for i in range(num):
         if color[i+2]:
-            ax3.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i+2], color=color[i+2])
+            p_dos = p_dos + ax3.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2], color=color[i+2])
+            if fill:
+                plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, color=color[i+2], alpha=0.2)
         else:
-            ax3.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i+2])
+            p_dos = p_dos + ax3.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2])
+            if fill:
+                plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, alpha=0.2)
 
     ax3.axvline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.set_yticklabels([])
     ax3.set_yticklabels([])
-    ax3.legend(elements, frameon=False, prop={'size':'small'}, alignment='left', loc=location, title="Density of states", title_fontproperties={'size':'small'})
+    ax3.legend(p_dos, elements, frameon=False, prop={'size':'small'}, alignment='left', loc=location, title="Density of states", title_fontproperties={'size':'small'})
 
     ax1.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.axhline(linewidth=0.4, linestyle='-.', c='gray')
@@ -225,23 +271,31 @@ def DispinWd(EXPORT, figsize, vertical, horizontal, arr, bands, ticks, labels, d
     ax1.set_ylabel('Energy (eV)')
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
-def pdosfiles(EXPORT, figsize, vertical, horizontal, darr, dele, index_f, elements, linestyle, legend, location, exchange, color):
+def pdosfiles(EXPORT, figsize, vertical, horizontal, darr, dele, fill, index_f, elements, linestyle, linewidth, legend, location, exchange, color):
     plt.figure(figsize=figsize)
     plt.minorticks_on()
     plt.tick_params(axis='both', which='minor', color='gray')
     num = len(index_f)
+    p_dos = []
     if num > len(color):
         color = color + [''] * (num - len(color))
 
     if num > len(linestyle):
         linestyle = linestyle + ['-'] * (num - len(linestyle))
 
+    if num > len(linewidth):
+        linewidth = linewidth + [0.8] * (num - len(linewidth))
+
     if exchange:
         for i in range(num):
             if color[i]:
-                plt.plot(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], linewidth=0.8, linestyle=linestyle[i], color=color[i])
+                p_dos = p_dos + plt.plot(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], linewidth=linewidth[i], linestyle=linestyle[i], color=color[i])
+                if fill:
+                    plt.fill_between(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], 0, color=color[i], alpha=0.2)
             else:
-                plt.plot(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], linewidth=0.8, linestyle=linestyle[i])
+                p_dos = p_dos + plt.plot(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], linewidth=linewidth[i], linestyle=linestyle[i])
+                if fill:
+                    plt.fill_between(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], 0, alpha=0.2)
 
         plt.tick_params(axis='y', labelsize='medium', labelcolor='dimgray')
         plt.xlim(vertical)
@@ -251,9 +305,13 @@ def pdosfiles(EXPORT, figsize, vertical, horizontal, darr, dele, index_f, elemen
     else:
         for i in range(num):
             if color[i]:
-                plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i], color=color[i])
+                p_dos = p_dos + plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i], color=color[i])
+                if fill:
+                    plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, color=color[i], alpha=0.2)
             else:
-                plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i])
+                p_dos = p_dos + plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i])
+                if fill:
+                    plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, alpha=0.2)
 
         plt.tick_params(axis='x', labelsize='medium', labelcolor='dimgray')
         plt.ylim(vertical)
@@ -263,17 +321,19 @@ def pdosfiles(EXPORT, figsize, vertical, horizontal, darr, dele, index_f, elemen
 
     plt.axvline(linewidth=0.4, linestyle='-.', c='gray')
     plt.axhline(linewidth=0.4, linestyle='-.', c='gray')
-    plt.legend(elements, frameon=False, prop={'size':'medium'}, loc=location, title=legend[0], title_fontproperties={'size':'medium'})
+    plt.legend(p_dos, elements, frameon=False, prop={'size':'medium'}, loc=location, title=legend[0], title_fontproperties={'size':'medium'})
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
-def Broken(EXPORT,  figsize, vertical, arr, fre, ticks, labels, broken, height_ratio, linestyle, legend, location, color):
+# pbandplot
+
+def Broken(EXPORT,  figsize, vertical, arr, fre, ticks, labels, broken, height_ratio, linestyle, linewidth, legend, location, color):
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, height_ratios=[height_ratio, 1-height_ratio], figsize=figsize)
     fig.subplots_adjust(hspace=0.0)
     if len(color) == 0:
         color = ['r']
 
-    ax1.plot(arr, fre.T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
-    ax2.plot(arr, fre.T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
+    ax1.plot(arr, fre.T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
+    ax2.plot(arr, fre.T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     plt.xlim(arr[0], arr[-1])
     if vertical is None:
         vertical = plt.ylim()
@@ -293,11 +353,6 @@ def Broken(EXPORT,  figsize, vertical, arr, fre, ticks, labels, broken, height_r
             ax1.axvline(i, linewidth=0.4, linestyle='-.', c='gray')
             ax2.axvline(i, linewidth=0.4, linestyle='-.', c='gray')
 
-    if len(ticks) > len(labels):
-        labels = labels + [''] * (len(ticks) - len(labels))
-    elif len(ticks) < len(labels):
-        labels = labels[:len(ticks)]
-
     ax2.legend(legend, frameon=False, prop={'size':'medium'}, loc=location)
     plt.xticks(ticks,labels)
     plt.suptitle('Frequency (THz)', rotation=90, x=0.06, y=0.6, size='medium')
@@ -307,23 +362,18 @@ def Broken(EXPORT,  figsize, vertical, arr, fre, ticks, labels, broken, height_r
     ax2.plot([0, 1], [0.98, 0.98], transform=ax2.transAxes, **kwargs)
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
-def Nobroken(EXPORT, figsize, vertical, arr, fre, ticks, labels, linestyle, legend, location, color):
+def Nobroken(EXPORT, figsize, vertical, arr, fre, ticks, labels, linestyle, linewidth, legend, location, color):
     plt.figure(figsize=figsize)
     if len(color) == 0:
         color = ['r']
 
-    plt.plot(arr, fre.T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
+    plt.plot(arr, fre.T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     plt.tick_params(axis='y', which='minor', color='gray')
     plt.axhline(linewidth=0.4, linestyle='-.', c='gray')
     if len(ticks) > 2:
         ticks[0],ticks[-1] = arr[0],arr[-1]
         for i in ticks[1:-1]:
             plt.axvline(i, linewidth=0.4, linestyle='-.', c='gray')
-
-    if len(ticks) > len(labels):
-        labels = labels + [''] * (len(ticks) - len(labels))
-    elif len(ticks) < len(labels):
-        labels = labels[:len(ticks)]
 
     plt.legend(legend, frameon=False, prop={'size':'medium'}, loc=location)
     plt.xticks(ticks,labels)
@@ -332,28 +382,36 @@ def Nobroken(EXPORT, figsize, vertical, arr, fre, ticks, labels, linestyle, lege
     plt.ylabel('Frequency (THz)')
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
-def BrokenWd(EXPORT, figsize, vertical, horizontal, arr, fre, ticks, labels, broken, height_ratio, darr, dele, elements, width_ratios, linestyle, legend, location, color):
+def BrokenWd(EXPORT, figsize, vertical, horizontal, arr, fre, ticks, labels, broken, height_ratio, darr, dele, fill, elements, width_ratios, linestyle, linewidth, legend, location, color):
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, height_ratios=[height_ratio, 1-height_ratio], width_ratios=[1-width_ratios, width_ratios], figsize=figsize)
     fig.subplots_adjust(wspace=0.0, hspace=0.0)
     if len(color) == 0:
         color = ['r']
 
-    ax1.plot(arr, fre.T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
-    ax3.plot(arr, fre.T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
+    ax1.plot(arr, fre.T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
+    ax3.plot(arr, fre.T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     num = dele.shape[-1]
+    p_dos = []
     if num + 1 > len(color):
         color = color + [''] * (num - len(color) + 1)
 
     if num + 1 > len(linestyle):
         linestyle = linestyle + ['-'] * (num - len(linestyle) + 1)
 
+    if num + 1 > len(linewidth):
+        linewidth = linewidth + [0.8] * (num - len(linewidth) + 1)
+
     for i in range(num):
         if color[i+1]:
-            ax2.plot(dele[:,i], darr, linewidth=0.8, linestyle=linestyle[i+1], color=color[i+1])
-            ax4.plot(dele[:,i], darr, linewidth=0.8, linestyle=linestyle[i+1], color=color[i+1])
+            ax2.plot(dele[:,i], darr, linewidth=linewidth[i+1], linestyle=linestyle[i+1], color=color[i+1])
+            p_dos = p_dos + ax4.plot(dele[:,i], darr, linewidth=linewidth[i+1], linestyle=linestyle[i+1], color=color[i+1])
+            if fill:
+                plt.fill_between(dele[:,i], darr, 0, color=color[i], alpha=0.2)
         else:
-            ax2.plot(dele[:,i], darr, linewidth=0.8, linestyle=linestyle[i+1])
-            ax4.plot(dele[:,i], darr, linewidth=0.8, linestyle=linestyle[i+1])
+            ax2.plot(dele[:,i], darr, linewidth=linewidth[i+1], linestyle=linestyle[i+1])
+            p_dos = p_dos + ax4.plot(dele[:,i], darr, linewidth=linewidth[i+1], linestyle=linestyle[i+1])
+            if fill:
+                plt.fill_between(dele[:,i], darr, 0, alpha=0.2)
 
     ax1.set_xlim(arr[0], arr[-1])
     ax3.set_xlim(arr[0], arr[-1])
@@ -396,17 +454,12 @@ def BrokenWd(EXPORT, figsize, vertical, horizontal, arr, fre, ticks, labels, bro
             elements = elements[:num]
 
     ax3.legend(legend, frameon=False, prop={'size':'small'}, loc=location)
-    ax4.legend(elements, frameon=False, prop={'size':'small'}, alignment='left', loc=location, title="Phonon DOS", title_fontproperties={'size':'small'})
+    ax4.legend(p_dos, elements, frameon=False, prop={'size':'small'}, alignment='left', loc=location, title="Phonon DOS", title_fontproperties={'size':'small'})
     if len(ticks) > 2:
         ticks[0],ticks[-1] = arr[0],arr[-1]
         for i in ticks[1:-1]:
             ax1.axvline(i, linewidth=0.4, linestyle='-.', c='gray')
             ax3.axvline(i, linewidth=0.4, linestyle='-.', c='gray')
-
-    if len(ticks) > len(labels):
-        labels = labels + [''] * (len(ticks) - len(labels))
-    elif len(ticks) < len(labels):
-        labels = labels[:len(ticks)]
 
     ax3.set_xticks(ticks,labels)
     plt.suptitle('Frequency (THz)', rotation=90, x=0.06, y=0.6, size='medium')
@@ -418,25 +471,33 @@ def BrokenWd(EXPORT, figsize, vertical, horizontal, arr, fre, ticks, labels, bro
     ax4.plot(1, 0.98, transform=ax4.transAxes, **kwargs)
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
-def NobrokenWd(EXPORT, figsize, vertical, horizontal, arr, fre, ticks, labels, darr, dele, elements, width_ratios, linestyle, legend, location, color):
+def NobrokenWd(EXPORT, figsize, vertical, horizontal, arr, fre, ticks, labels, darr, dele, fill, elements, width_ratios, linestyle, linewidth, legend, location, color):
     fig, (ax1, ax2) = plt.subplots(1, 2, width_ratios=[1-width_ratios, width_ratios], figsize=figsize)
     fig.subplots_adjust(wspace=0.0)
     if len(color) == 0:
         color = ['r']
 
-    ax1.plot(arr, fre.T, color=color[0], linewidth=0.8, linestyle=linestyle[0])
+    ax1.plot(arr, fre.T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     num = dele.shape[-1]
+    p_dos = []
     if num + 1 > len(color):
         color = color + [''] * (num - len(color) + 1)
 
     if num + 1 > len(linestyle):
         linestyle = linestyle + ['-'] * (num - len(linestyle) + 1)
 
+    if num + 1 > len(linewidth):
+        linewidth = linewidth + [0.8] * (num - len(linewidth) + 1)
+
     for i in range(num):
         if color[i+1]:
-            ax2.plot(dele[:,i], darr, linewidth=0.8, linestyle=linestyle[i+1], color=color[i+1])
+            p_dos = p_dos + ax2.plot(dele[:,i], darr, linewidth=linewidth[i+1], linestyle=linestyle[i+1], color=color[i+1])
+            if fill:
+                plt.fill_between(dele[:,i], darr, 0, color=color[i], alpha=0.2)
         else:
-            ax2.plot(dele[:,i], darr, linewidth=0.8, linestyle=linestyle[i+1])
+            p_dos = p_dos + ax2.plot(dele[:,i], darr, linewidth=linewidth[i+1], linestyle=linestyle[i+1])
+            if fill:
+                plt.fill_between(dele[:,i], darr, 0, alpha=0.2)
 
     ax1.set_xlim(arr[0], arr[-1])
     if vertical is None:
@@ -462,38 +523,41 @@ def NobrokenWd(EXPORT, figsize, vertical, horizontal, arr, fre, ticks, labels, d
 
     ax1.legend(legend, frameon=False, prop={'size':'small'}, loc=location)
     ax2.axvline(linewidth=0.4,linestyle='-.',c='dimgray')
-    ax2.legend(elements, frameon=False, prop={'size':'small'}, alignment='left', loc=location, title="Phonon DOS", title_fontproperties={'size':'small'})
+    ax2.legend(p_dos, elements, frameon=False, prop={'size':'small'}, alignment='left', loc=location, title="Phonon DOS", title_fontproperties={'size':'small'})
     if len(ticks) > 2:
         ticks[0],ticks[-1] = arr[0],arr[-1]
         for i in ticks[1:-1]:
             ax1.axvline(i, linewidth=0.4, linestyle='-.', c='gray')
 
-    if len(ticks) > len(labels):
-        labels = labels + [''] * (len(ticks) - len(labels))
-    elif len(ticks) < len(labels):
-        labels = labels[:len(ticks)]
-
     ax1.set_xticks(ticks,labels)
     ax1.set_ylabel('Frequency (THz)')
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
-def dosfile(EXPORT, figsize, vertical, horizontal, darr, dele, elements, linestyle, legend, location, exchange, color):
+def dosfile(EXPORT, figsize, vertical, horizontal, darr, dele, fill, elements, linestyle, linewidth, legend, location, exchange, color):
     plt.figure(figsize=figsize)
     plt.minorticks_on()
     plt.tick_params(axis='both', which='minor', color='gray')
     num = dele.shape[-1]
+    p_dos = []
     if num > len(color):
         color = color + [''] * (num - len(color))
 
     if num > len(linestyle):
         linestyle = linestyle + ['-'] * (num - len(linestyle))
 
+    if num > len(linewidth):
+        linewidth = linewidth + [0.8] * (num - len(linewidth))
+
     if exchange:
         for i in range(num):
             if color[i]:
-                plt.plot(darr, dele[:,i], linewidth=0.8, linestyle=linestyle[i], color=color[i])
+                p_dos = p_dos + plt.plot(darr, dele[:,i], linewidth=linewidth[i], linestyle=linestyle[i], color=color[i])
+                if fill:
+                    plt.fill_between(darr, dele[:,i], 0, color=color[i], alpha=0.2)
             else:
-                plt.plot(darr, dele[:,i], linewidth=0.8, linestyle=linestyle[i])
+                p_dos = p_dos + plt.plot(darr, dele[:,i], linewidth=linewidth[i], linestyle=linestyle[i])
+                if fill:
+                    plt.fill_between(darr, dele[:,i], 0, alpha=0.2)
 
         plt.xlim(vertical)
         plt.ylim(horizontal)
@@ -503,9 +567,13 @@ def dosfile(EXPORT, figsize, vertical, horizontal, darr, dele, elements, linesty
     else:
         for i in range(num):
             if color[i]:
-                plt.plot(dele[:,i], darr, linewidth=0.8, linestyle=linestyle[i], color=color[i])
+                p_dos = p_dos + plt.plot(dele[:,i], darr, linewidth=linewidth[i], linestyle=linestyle[i], color=color[i])
+                if fill:
+                    plt.fill_between(dele[:,i], darr, 0, color=color[i], alpha=0.2)
             else:
-                plt.plot(dele[:,i], darr, linewidth=0.8, linestyle=linestyle[i])
+                p_dos = p_dos + plt.plot(dele[:,i], darr, linewidth=linewidth[i], linestyle=linestyle[i])
+                if fill:
+                    plt.fill_between(dele[:,i], darr, 0, alpha=0.2)
 
         plt.ylim(vertical)
         plt.xlim(horizontal)
@@ -523,6 +591,6 @@ def dosfile(EXPORT, figsize, vertical, horizontal, darr, dele, elements, linesty
         else:
             elements = elements[:num]
 
-    plt.legend(elements, frameon=False, prop={'size':'medium'}, alignment='left', loc=location, title=legend[0], title_fontproperties={'size':'medium'})
+    plt.legend(p_dos, elements, frameon=False, prop={'size':'medium'}, alignment='left', loc=location, title=legend[0], title_fontproperties={'size':'medium'})
     plt.savefig(EXPORT, dpi=750, transparent=True, bbox_inches='tight')
 
