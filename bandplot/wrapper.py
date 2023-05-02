@@ -178,7 +178,7 @@ pbandplot -i band.dat -o pband.png -l g m k g -d projected_dos.dat -g "$\pi^2_4$
     parser.add_argument('-x', "--horizontal", type=float,           nargs=2, help="Phonon density of states range")
     parser.add_argument('-n', "--exchange",   action='store_true',  help="exchange the x and y axes of Phonon DOS")
     parser.add_argument('-e', "--elements",   type=str,             nargs='+', default=[], help="PDOS labels")
-    parser.add_argument('-r', "--wratios",    type=float,           default=0.5, help='width ratio for DOS subplot, default 0.5')
+    parser.add_argument('-p', "--wratios",    type=float,           default=0.5, help='width ratio for DOS subplot, default 0.5')
     parser.add_argument('-z', "--fill",       action='store_true',  help='fill a shaded region between PDOS and axis')
     parser.add_argument('-f', "--font",       type=str,             default='STIXGeneral', help="font to use")
 
