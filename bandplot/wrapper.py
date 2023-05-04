@@ -39,7 +39,7 @@ bandplot -i band.dat -o pband.png -l g m k g -d PDOS* -z
     parser.add_argument('-i', "--input",      type=str,             help="plot figure from .dat file, default: BAND.dat", default="BAND.dat")
     parser.add_argument('-o', "--output",     type=str,             help="plot figure filename, default: BAND.png", default="BAND.png")
     parser.add_argument('-q', "--dpi",        type=int,             help="dpi of the figure, default: 500", default=500)
-    parser.add_argument('-j', "--klabels",    type=str,             help="filename of KLABELS", default="KLABELS")
+    parser.add_argument('-j', "--klabels",    type=str,             help="filename of KLABELS, default: KLABELS", default="KLABELS")
     parser.add_argument('-l', "--labels",     type=str.upper,       nargs='+', default=[], help='labels for high-symmetry points, such as X S Y K M')
     parser.add_argument('-d', "--dos",        type=str,             nargs='+', default=[], help="plot DOS from .dat file, or file list")
     parser.add_argument('-x', "--horizontal", type=float, nargs=2,  help="Density of states, electrons/eV range")
@@ -179,6 +179,7 @@ pbandplot -i band.dat -o pband.png -l g m k g -d projected_dos.dat -g "$\pi^2_4$
     parser.add_argument('-i', "--input",      type=str,             help="plot figure from .dat file, default: BAND.dat", default="BAND.dat")
     parser.add_argument('-o', "--output",     type=str,             help="plot figure filename, default: BAND.png", default="BAND.png")
     parser.add_argument('-q', "--dpi",        type=int,             help="dpi of the figure, default: 500", default=500)
+    parser.add_argument('-j', "--bandconf",   type=str,             help="filename of band setting file, default: band.conf", default="band.conf")
     parser.add_argument('-l', "--labels",     type=str.upper,       nargs='+', default=[], help='labels for high-symmetry points, such as X S Y K M')
     parser.add_argument('-d', "--dos",        type=str,             help="plot Phonon DOS from .dat file")
     parser.add_argument('-x', "--horizontal", type=float, nargs=2,  help="Phonon density of states range")
@@ -252,6 +253,11 @@ pbandplot -i band.dat -o pband.png -l g m k g -d projected_dos.dat -g "$\pi^2_4$
                     color=color, linestyle=linestyle, linewidth=linewidth, location=args.location, dpi=args.dpi)
     if os.path.exists(args.input):
         arr, fre, ticks = readdata.pbands(args.input)
+        klabels = []
+        if os.path.exists(args.bandconf):
+            klabels = readdata.bandset(args.bandconf)
+        if len(labels) == 0:
+            labels=[re.sub('^GA[A-Z]+$|^G$', 'Γ', i) for i in klabels]
         if len(ticks) > len(labels):
             labels = labels + [''] * (len(ticks) - len(labels))
         elif len(ticks) < len(labels):

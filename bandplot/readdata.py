@@ -9,6 +9,14 @@ def klabels(KLABELS):
     labels = [label[0] for label in LABELS]
     return ticks, labels
 
+def bandset(bandconf):
+    with open(bandconf, "r") as main_file:
+        lines = main_file.readlines()
+    LABELS = [line for line in lines if line.strip().startswith('BAND_LABELS')]
+    if LABELS:
+        LABELS = LABELS[-1].split("=")[-1].replace('\\','').upper().split()
+    return LABELS
+
 def dos(DOS):
     ARR = []
     ELE = []
