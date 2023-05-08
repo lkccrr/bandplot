@@ -146,6 +146,8 @@ bandplot -i band.dat -o pband.png -l g m k g -d PDOS* -z
 
     else:
         if dosfiles:
+            if fig_p.output == "BAND.png":
+                fig_p.output = "DOS.png"
             darr, dele, s_elements = readdata.dos(dosfiles)
             index_f, labels_elements = readdata.select(s_elements, args.partial)
             if not elements:
