@@ -21,6 +21,36 @@ def Noneispin(arr, bands, ticks, labels, legend, fig_p):
     plt.ylabel('Energy (eV)')
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
 
+def Noneispin2(arr, bands, ticks, labels, legend, fig_p):
+    fig = plt.figure(figsize=fig_p.size)
+    color = fig_p.color or ['r', 'k']
+    linestyle = fig_p.linestyle or ['-', '-.']
+    linewidth = fig_p.linewidth or [0.8, 0.8]
+    if len(color) == 1:
+        color = [color[0], 'k']
+    if len(linestyle) == 1:
+        linestyle = [linestyle[0], '-.']
+    if len(linewidth) == 1:
+        linewidth = [linewidth[0], 0.8]
+    f = plt.plot(arr[0], bands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
+    plt.tick_params(axis='y', which='minor', color='gray')
+    plt.axhline(linewidth=0.4, linestyle='-.', c='gray')
+    if len(ticks) > 2:
+        ticks[0],ticks[-1] = arr[0][0],arr[0][-1]
+        for i in ticks[1:-1]:
+            plt.axvline(i, linewidth=0.4, linestyle='-.', c='gray')
+    plt.xticks(ticks,labels)
+    plt.xlim(arr[0][0], arr[0][-1])
+    plt.ylim(fig_p.vertical)
+    plt.ylabel('Energy (eV)')
+    ax = plt.axes()
+    g = ax.plot(arr[1], bands[1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
+    ax.set_xlim(arr[1][0], arr[1][-1])
+    ax.set_ylim(fig_p.vertical)
+    ax.axis('off')
+    plt.legend([f[0], g[0]], [legend[1], legend[2]], frameon=False, prop={'size':'medium'}, loc=fig_p.location, alignment='left', title=legend[0], title_fontproperties={'size':'medium'})
+    plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
+
 def Ispin(arr, bands, ticks, labels, legend, fig_p):
     plt.figure(figsize=fig_p.size)
     color = fig_p.color or ['r', 'k']
@@ -34,7 +64,7 @@ def Ispin(arr, bands, ticks, labels, legend, fig_p):
         linewidth = [linewidth[0], 0.8]
     p_up = plt.plot(arr, bands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     p_do = plt.plot(arr, bands[1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
-    plt.legend([p_up[0], p_do[0]], ['up', 'down'], frameon=False, prop={'style':'italic', 'size':'medium'}, alignment='left', loc=fig_p.location, title=legend[0], title_fontproperties={'size':'medium'})
+    plt.legend([p_up[0], p_do[0]], ['up', 'down'], frameon=False, prop={'style':'italic', 'size':'medium'}, loc=fig_p.location, alignment='left', title=legend[0], title_fontproperties={'size':'medium'})
     plt.tick_params(axis='y', which='minor', color='gray')
     plt.axhline(linewidth=0.4, linestyle='-.', c='gray')
     if len(ticks) > 2:
@@ -62,8 +92,10 @@ def Dispin(arr, bands, ticks, labels, legend, fig_p):
         linewidth = [linewidth[0], 0.8]
     ax1.plot(arr, bands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     ax2.plot(arr, bands[1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
-    ax1.legend(['up'], frameon=False, prop={'style':'italic', 'size':'medium'}, alignment='left', loc=fig_p.location, title=legend[0], title_fontproperties={'size':'medium'})
-    ax2.legend(['down'], frameon=False, prop={'style':'italic', 'size':'medium'}, alignment='left', loc=fig_p.location)
+    L = ax1.legend([], frameon=False, loc='lower left', title=legend[0], title_fontproperties={'size':'medium'})
+    ax1.add_artist(L)
+    ax1.legend(['up'], frameon=False, prop={'style':'italic', 'size':'medium'}, loc=fig_p.location)
+    ax2.legend(['down'], frameon=False, prop={'style':'italic', 'size':'medium'}, loc=fig_p.location)
     ax1.tick_params(axis='y', which='minor', color='gray')
     ax2.tick_params(axis='y', which='minor', color='gray')
 
@@ -80,9 +112,64 @@ def Dispin(arr, bands, ticks, labels, legend, fig_p):
     ax1.set_ylim(fig_p.vertical)
     ax2.set_xlim(arr[0], arr[-1])
     ax2.set_ylim(fig_p.vertical)
-    ax1.set_xticks(ticks,labels[:-1]+[''])
+    if len(labels) > 0:
+        ax1.set_xticks(ticks,labels[:-1]+[''])
+    else:
+        ax1.set_xticks(ticks,labels)
     ax2.set_xticks(ticks,labels)
     ax1.set_ylabel('Energy (eV)')
+    plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
+
+def Dispin2(arr, bands, ticks, labels, legend, fig_p):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=fig_p.size)
+    fig.subplots_adjust(wspace=0.0)
+    color = fig_p.color or ['r', 'r', 'k', 'k']
+    linestyle = fig_p.linestyle or ['-', '-', '-.', '-.']
+    linewidth = fig_p.linewidth or [0.8, 0.8, 0.8, 0.8]
+    if len(color) < 4:
+        color = color + [''] * (4 - len(color))
+    if len(linestyle) < 4:
+        linestyle = linestyle + ['-'] * (4 - len(linestyle))
+    if len(linewidth) < 4:
+        linewidth = linewidth + [0.8] * (4 - len(linewidth))
+    f1 = ax1.plot(arr[0], bands[0][0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0], label='1')
+    f2 = ax2.plot(arr[0], bands[0][1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1], label='1')
+    L = ax1.legend([], frameon=False, loc='lower left', title=legend[0], title_fontproperties={'size':'medium'})
+    ax1.add_artist(L)
+    ax1.tick_params(axis='y', which='minor', color='gray')
+    ax2.tick_params(axis='y', which='minor', color='gray')
+
+    ax1.axhline(linewidth=0.4, linestyle='-.', c='gray')
+    ax2.axhline(linewidth=0.4, linestyle='-.', c='gray')
+    ax2.set_yticklabels([])
+    if len(ticks) > 2:
+        ticks[0],ticks[-1] = arr[0][0],arr[0][-1]
+        for i in ticks[1:-1]:
+            ax1.axvline(i, linewidth=0.4, linestyle='-.', c='gray')
+            ax2.axvline(i, linewidth=0.4, linestyle='-.', c='gray')
+
+    ax1.set_xlim(arr[0][0], arr[0][-1])
+    ax1.set_ylim(fig_p.vertical)
+    ax2.set_xlim(arr[0][0], arr[0][-1])
+    ax2.set_ylim(fig_p.vertical)
+    if len(labels) > 0:
+        ax1.set_xticks(ticks,labels[:-1]+[''])
+    else:
+        ax1.set_xticks(ticks,labels)
+    ax2.set_xticks(ticks,labels)
+    ax1.set_ylabel('Energy (eV)')
+    ax1_f = fig.add_subplot(1,2,1)
+    g1 = ax1_f.plot(arr[1], bands[1][0].T, color=color[2], linewidth=linewidth[2], linestyle=linestyle[2])
+    ax1_f.set_xlim(arr[1][0], arr[1][-1])
+    ax1_f.set_ylim(fig_p.vertical)
+    ax1_f.axis('off')
+    ax2_f = fig.add_subplot(1,2,2)
+    g2 = ax2_f.plot(arr[1], bands[1][1].T, color=color[3], linewidth=linewidth[3], linestyle=linestyle[3], label='2')
+    ax2_f.set_xlim(arr[1][0], arr[1][-1])
+    ax2_f.set_ylim(fig_p.vertical)
+    ax2_f.axis('off')
+    ax1.legend([f1[0], g1[0]], [legend[1], legend[2]], frameon=False, prop={'size':'medium'}, loc=fig_p.location, alignment='left', title='up', title_fontproperties={'style':'italic', 'size':'medium'})
+    ax2.legend([f2[0], g2[0]], [legend[1], legend[2]], frameon=False, prop={'size':'medium'}, loc=fig_p.location, alignment='left', title='down', title_fontproperties={'style':'italic', 'size':'medium'})
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
 
 def NoneispinWd(arr, bands, ticks, labels, darr, dele, fill, index_f, elements, width_ratios, legend, fig_p):
@@ -119,7 +206,7 @@ def NoneispinWd(arr, bands, ticks, labels, darr, dele, fill, index_f, elements, 
     ax2.minorticks_on()
     ax2.tick_params(axis='both', which='minor', color='gray')
     ax2.set_yticklabels([])
-    ax2.legend(p_dos, elements, frameon=False, prop={'size':'small'}, alignment='left', loc=fig_p.location, title="Density of states", title_fontproperties={'size':'small'})
+    ax2.legend(p_dos, elements, frameon=False, prop={'size':'small'}, loc=fig_p.location, alignment='left', title="Density of states", title_fontproperties={'size':'small'})
     ax1.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.axvline(linewidth=0.4, linestyle='-.', c='gray')
@@ -151,7 +238,7 @@ def IspinWd(arr, bands, ticks, labels, darr, dele, fill, index_f, elements, widt
         linewidth = [linewidth[0], 0.8]
     p_up = ax1.plot(arr, bands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     p_do = ax1.plot(arr, bands[1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
-    ax1.legend([p_up[0], p_do[0]], ['up', 'down'], frameon=False, prop={'style':'italic', 'size':'small'}, alignment='left', loc=fig_p.location, title=legend[0], title_fontproperties={'size':'small'})
+    ax1.legend([p_up[0], p_do[0]], ['up', 'down'], frameon=False, prop={'style':'italic', 'size':'small'}, loc=fig_p.location, alignment='left', title=legend[0], title_fontproperties={'size':'small'})
     num = len(index_f)
     p_dos = []
     if num + 2 > len(color):
@@ -178,7 +265,7 @@ def IspinWd(arr, bands, ticks, labels, darr, dele, fill, index_f, elements, widt
     ax2.tick_params(axis='both', which='minor', color='gray')
     ax2.axvline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.set_yticklabels([])
-    ax2.legend(p_dos, elements, frameon=False, prop={'size':'small'}, alignment='left', loc=fig_p.location, title="Density of states", title_fontproperties={'size':'small'})
+    ax2.legend(p_dos, elements, frameon=False, prop={'size':'small'}, loc=fig_p.location, alignment='left', title="Density of states", title_fontproperties={'size':'small'})
     ax1.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.axhline(linewidth=0.4, linestyle='-.', c='gray')
     if len(ticks) > 2:
@@ -209,8 +296,10 @@ def DispinWd(arr, bands, ticks, labels, darr, dele, fill, index_f, elements, wid
         linewidth = [linewidth[0], 0.8]
     ax1.plot(arr, bands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     ax2.plot(arr, bands[1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
-    ax1.legend(['up'], frameon=False, prop={'style':'italic', 'size':'small'}, alignment='left', loc=fig_p.location, title=legend[0], title_fontproperties={'size':'small'})
-    ax2.legend(['down'], frameon=False, prop={'style':'italic', 'size':'small'}, alignment='left', loc=fig_p.location)
+    L = ax1.legend([], frameon=False, loc='lower left', title=legend[0], title_fontproperties={'size':'small'})
+    ax1.add_artist(L)
+    ax1.legend(['up'], frameon=False, prop={'style':'italic', 'size':'small'}, loc=fig_p.location)
+    ax2.legend(['down'], frameon=False, prop={'style':'italic', 'size':'small'}, loc=fig_p.location)
     ax1.tick_params(axis='y', which='minor', color='gray')
     ax2.tick_params(axis='y', which='minor', color='gray')
     ax3.minorticks_on()
@@ -239,7 +328,7 @@ def DispinWd(arr, bands, ticks, labels, darr, dele, fill, index_f, elements, wid
     ax3.axvline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.set_yticklabels([])
     ax3.set_yticklabels([])
-    ax3.legend(p_dos, elements, frameon=False, prop={'size':'small'}, alignment='left', loc=fig_p.location, title="Density of states", title_fontproperties={'size':'small'})
+    ax3.legend(p_dos, elements, frameon=False, prop={'size':'small'}, loc=fig_p.location, alignment='left', title="Density of states", title_fontproperties={'size':'small'})
 
     ax1.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.axhline(linewidth=0.4, linestyle='-.', c='gray')
@@ -256,7 +345,10 @@ def DispinWd(arr, bands, ticks, labels, darr, dele, fill, index_f, elements, wid
     ax2.set_ylim(fig_p.vertical)
     ax3.set_xlim(fig_p.horizontal)
     ax3.set_ylim(fig_p.vertical)
-    ax1.set_xticks(ticks,labels[:-1]+[''])
+    if len(labels) > 0:
+        ax1.set_xticks(ticks,labels[:-1]+[''])
+    else:
+        ax1.set_xticks(ticks,labels)
     ax2.set_xticks(ticks,labels)
     ax3.tick_params(axis='x', labelsize='x-small', labelcolor='dimgray', labelrotation=-90, pad=1.5)
     ax1.set_ylabel('Energy (eV)')
@@ -315,7 +407,7 @@ def pdosfiles(darr, dele, fill, index_f, elements, legend, exchange, fig_p):
 
     plt.axvline(linewidth=0.4, linestyle='-.', c='gray')
     plt.axhline(linewidth=0.4, linestyle='-.', c='gray')
-    plt.legend(p_dos, elements, frameon=False, prop={'size':'medium'}, loc=fig_p.location, title=legend[0], title_fontproperties={'size':'medium'})
+    plt.legend(p_dos, elements, frameon=False, prop={'size':'medium'}, loc=fig_p.location, alignment='left', title=legend[0], title_fontproperties={'size':'medium'})
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
 
 # pbandplot
@@ -445,7 +537,7 @@ def BrokenWd(arr, fre, ticks, labels, broken, height_ratio, darr, dele, fill, el
             elements = elements[:num]
 
     ax3.legend(legend, frameon=False, prop={'size':'small'}, loc=fig_p.location)
-    ax4.legend(p_dos, elements, frameon=False, prop={'size':'small'}, alignment='left', loc=fig_p.location, title="Phonon DOS", title_fontproperties={'size':'small'})
+    ax4.legend(p_dos, elements, frameon=False, prop={'size':'small'}, loc=fig_p.location, alignment='left', title="Phonon DOS", title_fontproperties={'size':'small'})
     if len(ticks) > 2:
         ticks[0],ticks[-1] = arr[0],arr[-1]
         for i in ticks[1:-1]:
@@ -513,7 +605,7 @@ def NobrokenWd(arr, fre, ticks, labels, darr, dele, fill, elements, width_ratios
 
     ax1.legend(legend, frameon=False, prop={'size':'small'}, loc=fig_p.location)
     ax2.axvline(linewidth=0.4,linestyle='-.',c='dimgray')
-    ax2.legend(p_dos, elements, frameon=False, prop={'size':'small'}, alignment='left', loc=fig_p.location, title="Phonon DOS", title_fontproperties={'size':'small'})
+    ax2.legend(p_dos, elements, frameon=False, prop={'size':'small'}, loc=fig_p.location, alignment='left', title="Phonon DOS", title_fontproperties={'size':'small'})
     if len(ticks) > 2:
         ticks[0],ticks[-1] = arr[0],arr[-1]
         for i in ticks[1:-1]:
@@ -584,6 +676,6 @@ def dosfile(darr, dele, fill, elements, legend, exchange, fig_p):
         else:
             elements = elements[:num]
 
-    plt.legend(p_dos, elements, frameon=False, prop={'size':'medium'}, alignment='left', loc=fig_p.location, title=legend[0], title_fontproperties={'size':'medium'})
+    plt.legend(p_dos, elements, frameon=False, prop={'size':'medium'}, loc=fig_p.location, alignment='left', title=legend[0], title_fontproperties={'size':'medium'})
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
 

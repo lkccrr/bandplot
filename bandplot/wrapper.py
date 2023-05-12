@@ -20,14 +20,14 @@ def main():
     parser = argparse.ArgumentParser(description='Plot the band structure or DOS from vaspkit result.',
                                      epilog='''
 Example:
-bandplot -i band.dat -o pband.png -l g m k g -d PDOS* -z
+bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
 ''',
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-v', "--version",    action="version",     version="bandplot "+__version__+" from "+os.path.dirname(__file__)+' (python'+platform.python_version()+')')
     parser.add_argument('-s', "--size",       type=int,   nargs=2,  help='figure size: width, height')
     parser.add_argument('-b', "--divided",    action='store_true',  help="plot the up and down spin in divided subplot")
     parser.add_argument('-y', "--vertical",   type=float, nargs=2,  help="energy (eV) range, default: [-5.0, 5.0]")
-    parser.add_argument('-g', "--legend",     type=str,   nargs=1,  help="legend labels")
+    parser.add_argument('-g', "--legend",     type=str,             nargs='+', help="legend labels", default=[])
     parser.add_argument('-a', "--location",   type=str.lower,       choices=['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right',
                                                                              'center left', 'center right', 'lower center', 'upper center', 'center'],
                                                                     help="arrange the legend location, default: best", default='best')
@@ -36,7 +36,7 @@ bandplot -i band.dat -o pband.png -l g m k g -d PDOS* -z
     parser.add_argument('-k', "--linestyle",  type=str,             nargs='+', help="linestyle: solid, dashed, dashdot, dotted or tuple; default: solid",
                                                                                     default=[])
     parser.add_argument('-w', "--linewidth",  type=str,             nargs='+', help="linewidth, default: 0.8", default=[])
-    parser.add_argument('-i', "--input",      type=str,             help="plot figure from .dat file, default: BAND.dat", default="BAND.dat")
+    parser.add_argument('-i', "--input",      type=str,             nargs='+', help="plot figure from .dat file, default: BAND.dat", default=["BAND.dat"])
     parser.add_argument('-o', "--output",     type=str,             help="plot figure filename, default: BAND.png", default="BAND.png")
     parser.add_argument('-q', "--dpi",        type=int,             help="dpi of the figure, default: 500", default=500)
     parser.add_argument('-j', "--klabels",    type=str,             help="filename of KLABELS, default: KLABELS", default="KLABELS")
@@ -100,10 +100,11 @@ bandplot -i band.dat -o pband.png -l g m k g -d PDOS* -z
 
     fig_p = cla_fig(output=args.output, size=args.size, vertical=args.vertical, horizontal=args.horizontal,
                     color=color, linestyle=linestyle, linewidth=linewidth, location=args.location, dpi=args.dpi)
-    if os.path.exists(args.input):
+    bandfile = [f for i in args.input for f in glob.glob(i)]
+    if len(bandfile) == 1:
         if not fig_p.vertical:
             fig_p.vertical = [-5.0, 5.0]
-        arr, bands, ispin = readdata.bands(args.input)
+        arr, bands, ispin = readdata.bands(bandfile[0])
         ticks   = []
         klabels = []
         if os.path.exists(args.klabels):
@@ -144,7 +145,7 @@ bandplot -i band.dat -o pband.png -l g m k g -d PDOS* -z
             elif ispin == "Ispin" and args.divided:
                 plots.DispinWd(arr, bands, ticks, labels, darr, dele, args.fill, index_f, elements, width_ratios, legend, fig_p)
 
-    else:
+    elif len(bandfile) == 0:
         if dosfiles:
             if fig_p.output == "BAND.png":
                 fig_p.output = "DOS.png"
@@ -157,11 +158,40 @@ bandplot -i band.dat -o pband.png -l g m k g -d PDOS* -z
         else:
             print('No .dat file!')
 
+    if len(bandfile) == 2:
+        if not fig_p.vertical:
+            fig_p.vertical = [-5.0, 5.0]
+        arr = [''] * 2
+        bands = [''] * 2
+        ispin = [''] * 2
+        arr[0], bands[0], ispin[0] = readdata.bands(bandfile[0])
+        arr[1], bands[1], ispin[1] = readdata.bands(bandfile[1])
+        ticks   = []
+        klabels = []
+        if os.path.exists(args.klabels):
+            ticks, klabels = readdata.klabels(args.klabels)
+
+        if len(labels) == 0:
+            labels=[re.sub('GAMMA|Gamma|G', 'Γ', re.sub('Undefined|Un|[0-9]', '', i)) for i in klabels]
+
+        if len(ticks) > len(labels):
+            labels = labels + [''] * (len(ticks) - len(labels))
+        elif len(ticks) < len(labels):
+            labels = labels[:len(ticks)]
+
+        if len(legend) < 3:
+            legend = legend + [''] * (3 - len(legend))
+
+        if all(x == "Noneispin" for x in ispin):
+            plots.Noneispin2(arr, bands, ticks, labels, legend, fig_p)
+        elif all(x == "Ispin" for x in ispin):
+            plots.Dispin2(arr, bands, ticks, labels, legend, fig_p)
+
 def pmain():
     parser = argparse.ArgumentParser(description='Plot the phonon band structure or DOS from phonopy results.',
                                      epilog='''
 Example:
-pbandplot -i band.dat -o pband.png -l g m k g -d projected_dos.dat -g "$\pi^2_4$" -e Si C O
+pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -g \$\\pi^2_4\$ -e Si C O
 ''',
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-v', "--version",    action="version",     version="bandplot "+__version__+" from "+os.path.dirname(__file__)+' (python'+platform.python_version()+')')
