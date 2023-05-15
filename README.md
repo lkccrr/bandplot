@@ -15,7 +15,7 @@ The <b style="color:green;"><i>bandplot</b></i> is used for electron band struct
 * Example:
 ```bash
 bandplot -h
-bandplot -i BAND.dat -o band.png -l g m k g -d PDOS* -z
+bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
 bandplot -i BAND1.dat BAND2.dat -g TiO\$_2\$ PBE HSE
 bandplot -b -l g m k g -y -3 3
 ```
@@ -25,7 +25,7 @@ bandplot -b -l g m k g -y -3 3
 * Example:
 ```bash
 pbandplot -h
-pbandplot -i band.dat -o pband.png -l g m k g -d projected_dos.dat -z
+pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -z
 pbandplot -b 23 100 -l g m k g -y -2 110
 ```
 
