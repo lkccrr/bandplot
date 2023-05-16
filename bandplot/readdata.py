@@ -23,17 +23,13 @@ def dos(DOS):
     s_elements = []
     for pdos in DOS:
         with open(pdos, "r") as main_file:
-            lines = main_file.readlines()
-        arr = []
-        ele = []
-        for line in lines[1:]:
-            values = [float(val) for val in line.split() if val]
-            if values:
-                arr.append(values[0])
-                ele.append(values[1:])
-        ARR.append(np.array(arr))
-        ELE.append(np.array(ele))
-        s_elements.append([re.sub('.dat|^[A-Za-z]+_', '', pdos)] + lines[0].split()[1:])
+            first_line = next(main_file)
+        data = np.loadtxt(pdos)
+        arr = data[:, 0]
+        ele = data[:, 1:]
+        ARR.append(arr)
+        ELE.append(ele)
+        s_elements.append([re.sub('.dat|^[A-Za-z]+_', '', pdos)] + first_line.split()[1:])
     return ARR, ELE, s_elements
 
 def select(s_elements, partial):
@@ -57,14 +53,16 @@ def select(s_elements, partial):
                 str_list = [i.strip() for i in str0.split('-') if i.strip()]
                 if len(str_list) == 1:
                     for i, elem in enumerate(s_elements):
-                        if elem[0] == str_list[0]:
+                        if elem[0] == str_list[0] or elem[0] == str_list[0]+'_UP' or elem[0] == str_list[0]+'_DW':
                             index += [(i, j) for j in range(1, len(elem))]
                 elif len(str_list) == 2:
                     for i, elem in enumerate(s_elements):
-                        if elem[0] == str_list[0]:
+                        if elem[0] == str_list[0] or elem[0] == str_list[0]+'_UP' or elem[0] == str_list[0]+'_DW':
                             index += [(i, j) for j, sub_elem in enumerate(elem)
                                       if j > 0 and sub_elem in str_list[1].split(',')]
-    labels_elements = [s_elements[i[0]][0] + '-$' + s_elements[i[0]][i[1]] + '$' for i in index]
+    labels_elements = [s_elements[i[0]][0].replace('_DW','')+'-$'+s_elements[i[0]][i[1]]+'$'+' ($dw$)' if s_elements[i[0]][0].endswith('_DW')
+                  else s_elements[i[0]][0].replace('_UP','')+'-$'+s_elements[i[0]][i[1]]+'$'+' ($up$)' if s_elements[i[0]][0].endswith('_UP')
+                  else s_elements[i[0]][0]+'-$'+s_elements[i[0]][i[1]]+'$' for i in index]
     index_f = [(i, j-1) if j > 0 else (i, j) for i, j in index]
     return index_f, labels_elements
 

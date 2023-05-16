@@ -47,7 +47,7 @@ def dat_read(data, lumo, homo, homo_c, scale):
             points[i*2+1] = 0
         elif data[points[i*2+1],0]==data[points[i*2+1]+1,0]:
             points[i*2+1] += 1
-    calM = ['']*4 if abs(data_s[points[3],1]-data_s[points[5],2]) > 0.1 else ['']*6
+    calM = [''] * 4 if abs(data_s[points[3],1]-data_s[points[5],2]) > 0.1 else [''] * 6
     for i in range(len(calM)):
         if i%2 == 0:
             calM[i]=[data[points[i]-N+1:points[i]+1,0].copy(), data_s[points[i]-N+1:points[i]+1,int(i/2)].copy()]
@@ -70,10 +70,10 @@ def exchange(A_a, A_b):
             A_a[1,i], A_b[1,i] = A_b[1,i], A_a[1,i]
 
 def npfit(calM):
-    pltlabel=['']*6
+    pltlabel=[''] * 6
     for i in range(len(calM)):
-        if abs(np.corrcoef(calM[i,0], calM[i,1])[0,1]) > 0.9:
-            pltlabel[i] = 0
+        if abs(np.corrcoef(calM[i,0], calM[i,1])[0,1]) > 0.99:
+            pltlabel[i] = 0.0
         else:
             fun = np.polyfit(calM[i,0], calM[i,1], 4)
             x = calM[i,0,-1] if i%2 == 0 else calM[i,0,0]

@@ -27,5 +27,6 @@ bandplot -b -l g m k g -y -3 3
 pbandplot -h
 pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -z
 pbandplot -b 23 100 -l g m k g -y -2 110
+pbandplot -i BAND1.dat BAND2.dat -b 20 100
 ```
 

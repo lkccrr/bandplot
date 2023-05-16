@@ -1,6 +1,6 @@
 import argparse, os, re, platform, glob
 import matplotlib.pyplot as plt
-from bandplot import plots, readdata
+from bandplot import plots, pplots, readdata
 from bandplot import __version__
 
 plt.rcParams['xtick.direction'] = 'in'
@@ -16,13 +16,14 @@ class cla_fig:
             else:
                 exec('self.%s = %s' %(key, value))
 
+# bandplot
 def main():
     parser = argparse.ArgumentParser(description='Plot the band structure or DOS from vaspkit result.',
                                      epilog='''
 Example:
-bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
+bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
 ''',
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-v', "--version",    action="version",     version="bandplot "+__version__+" from "+os.path.dirname(__file__)+' (python'+platform.python_version()+')')
     parser.add_argument('-s', "--size",       type=int,   nargs=2,  help='figure size: width, height')
     parser.add_argument('-b', "--divided",    action='store_true',  help="plot the up and down spin in divided subplot")
@@ -46,9 +47,9 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
     parser.add_argument('-d', "--dos",        type=str,             nargs='+', default=[], help="plot DOS from .dat file, or file list")
     parser.add_argument('-x', "--horizontal", type=float, nargs=2,  help="Density of states, electrons/eV range")
     parser.add_argument('-n', "--exchange",   action='store_true',  help="exchange the x and y axes of DOS")
-    parser.add_argument('-p', "--partial",    type=str,             nargs='+', default=[], help='the partial DOS to plot, s p d')
+    parser.add_argument('-p', "--partial",    type=str,             nargs='+', default=[], help='the partial DOS to plot, s p d, or symbol-s,p,d')
     parser.add_argument('-e', "--elements",   type=str,             nargs='+', default=[], help="PDOS labels")
-    parser.add_argument('-r', "--wratios",    type=float,           help='width ratio for DOS subplot')
+    parser.add_argument('-W', "--wratios",    type=float,           help='width ratio for DOS subplot')
     parser.add_argument('-z', "--fill",       action='store_true',  help='fill a shaded region between PDOS and axis')
     parser.add_argument('-Z', "--alpha",      type=float,           help='alpha value for filling region, default=0.2', default=0.2)
     parser.add_argument('-f', "--font",       type=str,             help="font to use", default='STIXGeneral')
@@ -114,9 +115,11 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
     elif len(ticks) < len(labels):
         labels = labels[:len(ticks)]
 
+    width_ratios = args.wratios or (0.3 if args.divided else 0.5)
+
     fig_p = cla_fig(output=args.output, size=args.size, vertical=args.vertical, horizontal=args.horizontal,
                     color=color, linestyle=linestyle, linewidth=linewidth, location=args.location, dpi=args.dpi,
-                    exchange=args.exchange, fill=args.fill)
+                    width_ratios=width_ratios, exchange=args.exchange, fill=args.fill)
 # calculate the effective masses
     if args.mass:
         if not fig_p.vertical:
@@ -130,6 +133,13 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
                 calM = mass.dat_read(data[0], lumo[0], homo[0], homo_c[0], args.scale)
                 pltlabel = mass.npfit(calM)
                 mass.plot(data[0], calM, pltlabel, ticks, labels, legend, fig_p)
+                print("{:<8}{:<8}{:<8}{:<8}{:<8}{:<8}".format("e_x","e_y","h1_x","h1_y","h2_x","h2_y"))
+                for i in pltlabel:
+                    if isinstance(i, float):
+                        print("{:<8.3f}".format(i), end='')
+                    else:
+                        print("{:<8s}".format('-'), end='')
+                print()
             elif all(x == 2 for x in Extension):
                 data = mass.bs_dat_read(filename)
                 calM_u = mass.dat_read(data[0], lumo[0], homo[0], homo_c[0], args.scale)
@@ -137,6 +147,19 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
                 pltlabel_u = mass.npfit(calM_u)
                 pltlabel_d = mass.npfit(calM_d)
                 mass.plot2(data, calM_u, pltlabel_u, calM_d, pltlabel_d, ticks, labels, legend, fig_p)
+                print("{:<8}{:<8}{:<8}{:<8}{:<8}{:<8}".format("e_x","e_y","h1_x","h1_y","h2_x","h2_y"))
+                for i in pltlabel_u:
+                    if isinstance(i, float):
+                        print("{:<8.3f}".format(i), end='')
+                    else:
+                        print("{:<8s}".format('-'), end='')
+                print()
+                for i in pltlabel_d:
+                    if isinstance(i, float):
+                        print("{:<8.3f}".format(i), end='')
+                    else:
+                        print("{:<8s}".format('-'), end='')
+                print()
             else:
                 print("ERROR: Input file mismatch.")
         else:
@@ -144,7 +167,8 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
 # plot Band Structure
     else:
         bandfile = [f for i in args.input for f in glob.glob(i)]
-        if len(bandfile) == 1:
+        len_bandfile = len(bandfile)
+        if len_bandfile == 1:
             if not fig_p.vertical:
                 fig_p.vertical = [-5.0, 5.0]
             arr, bands, ispin = readdata.bands(bandfile[0])
@@ -160,24 +184,17 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
                 index_f, labels_elements = readdata.select(s_elements, args.partial)
                 if not elements:
                     elements = labels_elements
-                if not args.wratios:
-                    if not args.divided:
-                        width_ratios = 0.5
-                    else:
-                        width_ratios = 0.3
-                else:
-                    width_ratios = args.wratios
                 if fig_p.fill:
                     fig_p.fill = args.alpha
 
                 if ispin == "Noneispin":
-                    plots.NoneispinWd(arr, bands, ticks, labels, darr, dele, index_f, elements, width_ratios, legend, fig_p)
+                    plots.NoneispinWd(arr, bands, ticks, labels, darr, dele, index_f, elements, legend, fig_p)
                 elif ispin == "Ispin" and not args.divided:
-                    plots.IspinWd(arr, bands, ticks, labels, darr, dele, index_f, elements, width_ratios, legend, fig_p)
+                    plots.IspinWd(arr, bands, ticks, labels, darr, dele, index_f, elements, legend, fig_p)
                 elif ispin == "Ispin" and args.divided:
-                    plots.DispinWd(arr, bands, ticks, labels, darr, dele, index_f, elements, width_ratios, legend, fig_p)
+                    plots.DispinWd(arr, bands, ticks, labels, darr, dele, index_f, elements, legend, fig_p)
 # plot DOS
-        elif len(bandfile) == 0:
+        elif len_bandfile == 0:
             if dosfiles:
                 if fig_p.output == "BAND.png":
                     fig_p.output = "DOS.png"
@@ -191,28 +208,15 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
                 plots.pdosfiles(darr, dele, index_f, elements, legend, fig_p)
             else:
                 print("ERROR: No *.dat file.")
-# compare two band structures
-        elif len(bandfile) == 2:
+# compare two Band structures
+        elif len_bandfile == 2:
             if not fig_p.vertical:
                 fig_p.vertical = [-5.0, 5.0]
-            arr = [''] * 2
+            arr =   [''] * 2
             bands = [''] * 2
             ispin = [''] * 2
             arr[0], bands[0], ispin[0] = readdata.bands(bandfile[0])
             arr[1], bands[1], ispin[1] = readdata.bands(bandfile[1])
-            ticks   = []
-            klabels = []
-            if os.path.exists(args.klabels):
-                ticks, klabels = readdata.klabels(args.klabels)
-
-            if len(labels) == 0:
-                labels=[re.sub('GAMMA|Gamma|G', 'Γ', re.sub('Undefined|Un|[0-9]', '', i)) for i in klabels]
-
-            if len(ticks) > len(labels):
-                labels = labels + [''] * (len(ticks) - len(labels))
-            elif len(ticks) < len(labels):
-                labels = labels[:len(ticks)]
-
             if len(legend) < 3:
                 legend = legend + [''] * (3 - len(legend))
 
@@ -220,20 +224,38 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
                 plots.Noneispin2(arr, bands, ticks, labels, legend, fig_p)
             elif all(x == "Ispin" for x in ispin):
                 plots.Dispin2(arr, bands, ticks, labels, legend, fig_p)
+# compare three Band structures
+        elif len_bandfile == 3:
+            if not fig_p.vertical:
+                fig_p.vertical = [-5.0, 5.0]
+            arr =   [''] * 3
+            bands = [''] * 3
+            ispin = [''] * 3
+            arr[0], bands[0], ispin[0] = readdata.bands(bandfile[0])
+            arr[1], bands[1], ispin[1] = readdata.bands(bandfile[1])
+            arr[2], bands[2], ispin[2] = readdata.bands(bandfile[2])
+            if len(legend) < 4:
+                legend = legend + [''] * (4 - len(legend))
+
+            if all(x == "Noneispin" for x in ispin):
+                plots.Noneispin3(arr, bands, ticks, labels, legend, fig_p)
+            elif all(x == "Ispin" for x in ispin):
+                plots.Dispin3(arr, bands, ticks, labels, legend, fig_p)
         else:
             print("Input file mismatch.")
 
+# bandplot
 def pmain():
     parser = argparse.ArgumentParser(description='Plot the phonon band structure or DOS from phonopy results.',
                                      epilog='''
 Example:
 pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -g \$\\pi^2_4\$ -e Si C O
 ''',
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-v', "--version",    action="version",     version="bandplot "+__version__+" from "+os.path.dirname(__file__)+' (python'+platform.python_version()+')')
     parser.add_argument('-s', "--size",       type=float, nargs=2,  help='figure size: width, height')
     parser.add_argument('-b', "--broken",     type=float, nargs=2,  help='broken axis: start, end')
-    parser.add_argument('-r', "--hratios",    type=float,           help='height ratio for broken axis, default: 0.2', default=0.2)
+    parser.add_argument('-H', "--hratios",    type=float,           help='height ratio for broken axis, default: 0.2', default=0.2)
     parser.add_argument('-y', "--vertical",   type=float, nargs=2,  help="frequency (THz) range")
     parser.add_argument('-g', "--legend",     type=str,             nargs='+', help="legend labels", default=[])
     parser.add_argument('-L', "--location",   type=str.lower,       choices=['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right',
@@ -253,7 +275,7 @@ pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -g \$\\pi^2_4\
     parser.add_argument('-x', "--horizontal", type=float, nargs=2,  help="Phonon density of states range")
     parser.add_argument('-n', "--exchange",   action='store_true',  help="exchange the x and y axes of Phonon DOS")
     parser.add_argument('-e', "--elements",   type=str,             nargs='+', default=[], help="PDOS labels")
-    parser.add_argument('-p', "--wratios",    type=float,           help='width ratio for DOS subplot, default 0.5', default=0.5)
+    parser.add_argument('-W', "--wratios",    type=float,           help='width ratio for DOS subplot, default 0.5', default=0.5)
     parser.add_argument('-z', "--fill",       action='store_true',  help='fill a shaded region between PDOS and axis')
     parser.add_argument('-Z', "--alpha",      type=float,           help='alpha value for filling region, default=0.2', default=0.2)
     parser.add_argument('-f', "--font",       type=str,             help="font to use", default='STIXGeneral')
@@ -309,65 +331,59 @@ pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -g \$\\pi^2_4\
 
     legend = args.legend or [formula] or [pltname]
 
-    broken = args.broken
-    height_ratio = args.hratios
-    if height_ratio >= 1 or height_ratio <= 0:
-        height_ratio = 0.2
+    klabels = []
+    if os.path.exists(args.bandconf):
+        klabels = readdata.bandset(args.bandconf)
+    if len(labels) == 0:
+        labels=[re.sub('^GA[A-Z]+$|^G$', 'Γ', i) for i in klabels]
 
-    width_ratios = args.wratios
-    if width_ratios >= 1 or width_ratios <= 0:
-        width_ratios = 0.5
+    broken = args.broken
+    height_ratio = args.hratios if 0 < args.hratios < 1 else 0.2
+    width_ratios = args.wratios if 0 < args.wratios < 1 else 0.5
 
     fig_p = cla_fig(output=args.output, size=args.size, vertical=args.vertical, horizontal=args.horizontal,
                     color=color, linestyle=linestyle, linewidth=linewidth, location=args.location, dpi=args.dpi,
-                    exchange=args.exchange, fill=args.fill)
+                    height_ratio=height_ratio, width_ratios=width_ratios, exchange=args.exchange, fill=args.fill)
 # plot Phonon Band Structure
     bandfile = [f for i in args.input for f in glob.glob(i)]
-    if len(bandfile) == 1:
+    len_bandfile = len(bandfile)
+    if len_bandfile == 1:
         arr, fre, ticks = readdata.pbands(bandfile[0])
-        klabels = []
-        if os.path.exists(args.bandconf):
-            klabels = readdata.bandset(args.bandconf)
-        if len(labels) == 0:
-            labels=[re.sub('^GA[A-Z]+$|^G$', 'Γ', i) for i in klabels]
         if len(ticks) > len(labels):
             labels = labels + [''] * (len(ticks) - len(labels))
         elif len(ticks) < len(labels):
             labels = labels[:len(ticks)]
         if args.dos is None:
             if args.broken is None:
-                plots.Nobroken(arr, fre, ticks, labels, legend, fig_p)
+                pplots.Nobroken(arr, fre, ticks, labels, legend, fig_p)
             else:
-                plots.Broken(arr, fre, ticks, labels, broken, height_ratio, legend, fig_p)
+                pplots.Broken(arr, fre, ticks, labels, broken, legend, fig_p)
         elif os.path.exists(args.dos):
             darr, dele = readdata.pdos(args.dos)
             if fig_p.fill:
                 fig_p.fill = args.alpha
             if args.broken is None:
-                plots.NobrokenWd(arr, fre, ticks, labels, darr, dele, elements, width_ratios, legend, fig_p)
+                pplots.NobrokenWd(arr, fre, ticks, labels, darr, dele, elements, legend, fig_p)
             else:
-                plots.BrokenWd(arr, fre, ticks, labels, broken, height_ratio, darr, dele, elements, width_ratios, legend, fig_p)
+                pplots.BrokenWd(arr, fre, ticks, labels, broken, darr, dele, elements, legend, fig_p)
 # plot Phonon DOS
-    elif len(bandfile) == 0:
+    elif len_bandfile == 0:
         if args.dos and os.path.exists(args.dos):
+            if fig_p.output == "BAND.png":
+                    fig_p.output = "DOS.png"
             darr, dele = readdata.pdos(args.dos)
             if fig_p.fill:
                 fig_p.fill = args.alpha
-            plots.dosfile(darr, dele, elements, legend, fig_p)
+            pplots.dosfile(darr, dele, elements, legend, fig_p)
         else:
             print('No *.dat file.')
-# compare two Phonon band structures
-    elif len(bandfile) == 2:
+# compare two Phonon Band structures
+    elif len_bandfile == 2:
         arr = [''] * 2
         fre = [''] * 2
         ticks = [''] * 2
         arr[0], fre[0], ticks[0] = readdata.pbands(bandfile[0])
         arr[1], fre[1], ticks[1] = readdata.pbands(bandfile[1])
-        klabels = []
-        if os.path.exists(args.bandconf):
-            klabels = readdata.bandset(args.bandconf)
-        if len(labels) == 0:
-            labels=[re.sub('^GA[A-Z]+$|^G$', 'Γ', i) for i in klabels]
         if len(ticks[0]) > len(labels):
             labels = labels + [''] * (len(ticks[0]) - len(labels))
         elif len(ticks[0]) < len(labels):
@@ -376,7 +392,28 @@ pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -g \$\\pi^2_4\
             legend = legend + [''] * (3 - len(legend))
 
         if args.broken is None:
-            plots.Nobroken2(arr, fre, ticks[0], labels, legend, fig_p)
+            pplots.Nobroken2(arr, fre, ticks[0], labels, legend, fig_p)
         else:
-            plots.Broken2(arr, fre, ticks[0], labels, broken, height_ratio, legend, fig_p)
+            pplots.Broken2(arr, fre, ticks[0], labels, broken, legend, fig_p)
+# compare three Phonon Band structures
+    elif len_bandfile == 3:
+        arr = [''] * 3
+        fre = [''] * 3
+        ticks = [''] * 3
+        arr[0], fre[0], ticks[0] = readdata.pbands(bandfile[0])
+        arr[1], fre[1], ticks[1] = readdata.pbands(bandfile[1])
+        arr[2], fre[2], ticks[2] = readdata.pbands(bandfile[2])
+        if len(ticks[0]) > len(labels):
+            labels = labels + [''] * (len(ticks[0]) - len(labels))
+        elif len(ticks[0]) < len(labels):
+            labels = labels[:len(ticks[0])]
+        if len(legend) < 4:
+            legend = legend + [''] * (4 - len(legend))
+
+        if args.broken is None:
+            pplots.Nobroken3(arr, fre, ticks[0], labels, legend, fig_p)
+        else:
+            pplots.Broken3(arr, fre, ticks[0], labels, broken, legend, fig_p)
+    else:
+        print("Input file mismatch.")
 
