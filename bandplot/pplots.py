@@ -251,7 +251,8 @@ def Nobroken3(arr, fre, ticks, labels, legend, fig_p):
 
 
 def BrokenWd(arr, fre, ticks, labels, broken, darr, dele, elements, legend, fig_p):
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, height_ratios=[fig_p.height_ratio, 1-fig_p.height_ratio], width_ratios=[1-fig_p.width_ratios, fig_p.width_ratios], figsize=fig_p.size)
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, height_ratios=[fig_p.height_ratio, 1-fig_p.height_ratio],
+                                                 width_ratios=[1-fig_p.width_ratios, fig_p.width_ratios], figsize=fig_p.size)
     fig.subplots_adjust(wspace=0.0, hspace=0.0)
     color = fig_p.color or ['r']
     linestyle = fig_p.linestyle or ['-']
@@ -321,7 +322,8 @@ def BrokenWd(arr, fre, ticks, labels, broken, darr, dele, elements, legend, fig_
             elements = elements[:num]
 
     ax3.legend([legend[0]], frameon=False, prop={'size':'small'}, loc=fig_p.location)
-    ax4.legend(p_dos, elements, frameon=False, prop={'size':'small'}, loc=fig_p.location, alignment='left', title="Phonon DOS", title_fontproperties={'size':'small'})
+    ax4.legend(p_dos, elements, frameon=False, prop={'size':'small'}, loc=fig_p.location,
+               alignment='left', title="Phonon DOS", title_fontproperties={'size':'small'})
     if len(ticks) > 2:
         ticks[0],ticks[-1] = arr[0],arr[-1]
         for i in ticks[1:-1]:
@@ -389,7 +391,8 @@ def NobrokenWd(arr, fre, ticks, labels, darr, dele, elements, legend, fig_p):
 
     ax1.legend([legend[0]], frameon=False, prop={'size':'small'}, loc=fig_p.location)
     ax2.axvline(linewidth=0.4,linestyle='-.',c='dimgray')
-    ax2.legend(p_dos, elements, frameon=False, prop={'size':'small'}, loc=fig_p.location, alignment='left', title="Phonon DOS", title_fontproperties={'size':'small'})
+    ax2.legend(p_dos, elements, frameon=False, prop={'size':'small'}, loc=fig_p.location,
+               alignment='left', title="Phonon DOS", title_fontproperties={'size':'small'})
     if len(ticks) > 2:
         ticks[0],ticks[-1] = arr[0],arr[-1]
         for i in ticks[1:-1]:
@@ -460,6 +463,7 @@ def dosfile(darr, dele, elements, legend, fig_p):
         else:
             elements = elements[:num]
 
-    plt.legend(p_dos, elements, frameon=False, prop={'size':'medium'}, loc=fig_p.location, alignment='left', title=legend[0], title_fontproperties={'size':'medium'})
+    plt.legend(p_dos, elements, frameon=False, prop={'size':'medium'}, loc=fig_p.location,
+               alignment='left', title=legend[0], title_fontproperties={'size':'medium'})
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
 

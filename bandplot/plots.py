@@ -48,7 +48,7 @@ def Noneispin2(arr, bands, ticks, labels, legend, fig_p):
     ax.set_xlim(arr[1][0], arr[1][-1])
     ax.set_ylim(fig_p.vertical)
     ax.axis('off')
-    L = plt.legend([], frameon=False, loc='lower left', title=legend[0], title_fontproperties={'size':'medium'})
+    L = plt.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     plt.gca().add_artist(L)
     plt.legend([f[0], g[0]], [legend[1], legend[2]], frameon=False, prop={'size':'medium'}, loc=fig_p.location)
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
@@ -85,7 +85,7 @@ def Noneispin3(arr, bands, ticks, labels, legend, fig_p):
     af.set_xlim(arr[2][0], arr[2][-1])
     af.set_ylim(fig_p.vertical)
     af.axis('off')
-    L = plt.legend([], frameon=False, loc='lower left', title=legend[0], title_fontproperties={'size':'medium'})
+    L = plt.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     plt.gca().add_artist(L)
     plt.legend([f[0], g[0], h[0]], [legend[1], legend[2], legend[3]], frameon=False, prop={'size':'medium'}, loc=fig_p.location)
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
@@ -132,7 +132,7 @@ def Dispin(arr, bands, ticks, labels, legend, fig_p):
         linewidth = [linewidth[0], 0.8]
     ax1.plot(arr, bands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     ax2.plot(arr, bands[1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
-    L = ax1.legend([], frameon=False, loc='lower left', title=legend[0], title_fontproperties={'size':'medium'})
+    L = ax1.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     ax1.add_artist(L)
     ax1.legend(['up'], frameon=False, prop={'style':'italic', 'size':'medium'}, loc=fig_p.location)
     ax2.legend(['down'], frameon=False, prop={'style':'italic', 'size':'medium'}, loc=fig_p.location)
@@ -174,7 +174,7 @@ def Dispin2(arr, bands, ticks, labels, legend, fig_p):
         linewidth = linewidth + [0.8] * (4 - len(linewidth))
     f1 = ax1.plot(arr[0], bands[0][0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     f2 = ax2.plot(arr[0], bands[0][1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
-    L = ax1.legend([], frameon=False, loc='lower left', title=legend[0], title_fontproperties={'size':'medium'})
+    L = ax1.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     ax1.add_artist(L)
     ax1.tick_params(axis='y', which='minor', color='gray')
     ax2.tick_params(axis='y', which='minor', color='gray')
@@ -230,7 +230,7 @@ def Dispin3(arr, bands, ticks, labels, legend, fig_p):
         linewidth = linewidth + [0.8] * (6 - len(linewidth))
     f1 = ax1.plot(arr[0], bands[0][0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     f2 = ax2.plot(arr[0], bands[0][1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
-    L = ax1.legend([], frameon=False, loc='lower left', title=legend[0], title_fontproperties={'size':'medium'})
+    L = ax1.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     ax1.add_artist(L)
     ax1.tick_params(axis='y', which='minor', color='gray')
     ax2.tick_params(axis='y', which='minor', color='gray')
@@ -303,11 +303,11 @@ def NoneispinWd(arr, bands, ticks, labels, darr, dele, index_f, elements, legend
 
     for i in range(num):
         if color[i+1]:
-            ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+1], linestyle=linestyle[i+1], color=color[i+1])
+            p_dos += ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+1], linestyle=linestyle[i+1], color=color[i+1])
             if fig_p.fill:
-                plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, color=color[i+2], alpha=fig_p.fill)
+                plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, color=color[i+1], alpha=fig_p.fill)
         else:
-            ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+1], linestyle=linestyle[i+1])
+            p_dos += ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+1], linestyle=linestyle[i+1])
             if fig_p.fill:
                 plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, alpha=fig_p.fill)
 
@@ -362,11 +362,11 @@ def IspinWd(arr, bands, ticks, labels, darr, dele, index_f, elements, legend, fi
 
     for i in range(num):
         if color[i+2]:
-            p_dos = p_dos + ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2], color=color[i+2])
+            p_dos += ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2], color=color[i+2])
             if fig_p.fill:
                 plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, color=color[i+2], alpha=fig_p.fill)
         else:
-            p_dos = p_dos + ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2])
+            p_dos += ax2.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2])
             if fig_p.fill:
                 plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, alpha=fig_p.fill)
 
@@ -406,7 +406,7 @@ def DispinWd(arr, bands, ticks, labels, darr, dele, index_f, elements, legend, f
         linewidth = [linewidth[0], 0.8]
     ax1.plot(arr, bands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
     ax2.plot(arr, bands[1].T, color=color[1], linewidth=linewidth[1], linestyle=linestyle[1])
-    L = ax1.legend([], frameon=False, loc='lower left', title=legend[0], title_fontproperties={'size':'small'})
+    L = ax1.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'small'})
     ax1.add_artist(L)
     ax1.legend(['up'], frameon=False, prop={'style':'italic', 'size':'small'}, loc=fig_p.location)
     ax2.legend(['down'], frameon=False, prop={'style':'italic', 'size':'small'}, loc=fig_p.location)
@@ -427,11 +427,11 @@ def DispinWd(arr, bands, ticks, labels, darr, dele, index_f, elements, legend, f
 
     for i in range(num):
         if color[i+2]:
-            p_dos = p_dos + ax3.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2], color=color[i+2])
+            p_dos += ax3.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2], color=color[i+2])
             if fig_p.fill:
                 plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, color=color[i+2], alpha=fig_p.fill)
         else:
-            p_dos = p_dos + ax3.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2])
+            p_dos += ax3.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i+2], linestyle=linestyle[i+2])
             if fig_p.fill:
                 plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, alpha=fig_p.fill)
 
@@ -485,11 +485,11 @@ def pdosfiles(darr, dele, index_f, elements, legend, fig_p):
     if fig_p.exchange:
         for i in range(num):
             if color[i]:
-                p_dos = p_dos + plt.plot(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], linewidth=linewidth[i], linestyle=linestyle[i], color=color[i])
+                p_dos += plt.plot(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], linewidth=linewidth[i], linestyle=linestyle[i], color=color[i])
                 if fig_p.fill:
                     plt.fill_between(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], 0, color=color[i], alpha=fig_p.fill)
             else:
-                p_dos = p_dos + plt.plot(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], linewidth=linewidth[i], linestyle=linestyle[i])
+                p_dos += plt.plot(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], linewidth=linewidth[i], linestyle=linestyle[i])
                 if fig_p.fill:
                     plt.fill_between(darr[index_f[i][0]], dele[index_f[i][0]].T[index_f[i][1]], 0, alpha=fig_p.fill)
 
@@ -501,11 +501,11 @@ def pdosfiles(darr, dele, index_f, elements, legend, fig_p):
     else:
         for i in range(num):
             if color[i]:
-                p_dos = p_dos + plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i], color=color[i])
+                p_dos += plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i], color=color[i])
                 if fig_p.fill:
                     plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, color=color[i], alpha=fig_p.fill)
             else:
-                p_dos = p_dos + plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i])
+                p_dos += plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i])
                 if fig_p.fill:
                     plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, alpha=fig_p.fill)
 
@@ -515,7 +515,7 @@ def pdosfiles(darr, dele, index_f, elements, legend, fig_p):
         plt.ylabel('Energy (eV)')
         plt.xlabel('Density of states, electrons/eV')
 
-    L = plt.legend([], frameon=False, loc='lower left', title=legend[0], title_fontproperties={'size':'medium'})
+    L = plt.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     plt.gca().add_artist(L)
     plt.axvline(linewidth=0.4, linestyle='-.', c='gray')
     plt.axhline(linewidth=0.4, linestyle='-.', c='gray')

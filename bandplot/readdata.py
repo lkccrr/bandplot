@@ -24,19 +24,24 @@ def dos(DOS):
     for pdos in DOS:
         with open(pdos, "r") as main_file:
             first_line = next(main_file)
-        data = np.loadtxt(pdos)
-        arr = data[:, 0]
-        ele = data[:, 1:]
+        dat = np.loadtxt(pdos)
+        arr = dat[:, 0]
+        ele = dat[:, 1:]
         ARR.append(arr)
         ELE.append(ele)
-        s_elements.append([re.sub('.dat|^[A-Za-z]+_', '', pdos)] + first_line.split()[1:])
+        s_elements.append([re.sub('.dat$|^.+PDOS_|^.+/', '', pdos)] + first_line.split()[1:])
     return ARR, ELE, s_elements
 
 def select(s_elements, partial):
     partial = [i for i in partial if i.strip()]
     num = len(s_elements)
     if not partial:
-        index = [(i, -1) for i in range(num)]
+        index = []
+        for i in range(num):
+            if s_elements[i][0] == "TDOS":
+                index += [(i, j) for j in range(1, len(s_elements[i]))]
+            else:
+                index.append((i, -1))
     elif partial[0] == 'all':
         index = [(i, j) for i in range(num) for j in range(1, len(s_elements[i]))]
     else:
@@ -45,24 +50,20 @@ def select(s_elements, partial):
             if str0.islower():
                 str_list = str0.split(',')
                 for i, elem in enumerate(s_elements):
-                    for j, sub_elem in enumerate(elem):
-                        if j == 0 or sub_elem not in str_list:
-                            continue
-                        index.append((i, j))
+                    index += [(i, j) for j, sub_elem in enumerate(elem) if j > 0 and sub_elem in str_list]
             else:
                 str_list = [i.strip() for i in str0.split('-') if i.strip()]
                 if len(str_list) == 1:
                     for i, elem in enumerate(s_elements):
-                        if elem[0] == str_list[0] or elem[0] == str_list[0]+'_UP' or elem[0] == str_list[0]+'_DW':
+                        if re.sub('_DW$|_UP$', '', elem[0]) in str_list[0].split(','):
                             index += [(i, j) for j in range(1, len(elem))]
                 elif len(str_list) == 2:
                     for i, elem in enumerate(s_elements):
-                        if elem[0] == str_list[0] or elem[0] == str_list[0]+'_UP' or elem[0] == str_list[0]+'_DW':
-                            index += [(i, j) for j, sub_elem in enumerate(elem)
-                                      if j > 0 and sub_elem in str_list[1].split(',')]
-    labels_elements = [s_elements[i[0]][0].replace('_DW','')+'-$'+s_elements[i[0]][i[1]]+'$'+' ($dw$)' if s_elements[i[0]][0].endswith('_DW')
-                  else s_elements[i[0]][0].replace('_UP','')+'-$'+s_elements[i[0]][i[1]]+'$'+' ($up$)' if s_elements[i[0]][0].endswith('_UP')
-                  else s_elements[i[0]][0]+'-$'+s_elements[i[0]][i[1]]+'$' for i in index]
+                        if re.sub('_DW$|_UP$', '', elem[0]) in str_list[0].split(','):
+                            index += [(i, j) for j, sub_elem in enumerate(elem) if j > 0 and sub_elem in str_list[1].split(',')]
+    labels_elements = [s_elements[i][0].replace('_DW','')+'-$'+s_elements[i][j]+'$'+' ($dw$)' if s_elements[i][0].endswith('_DW')
+                  else s_elements[i][0].replace('_UP','')+'-$'+s_elements[i][j]+'$'+' ($up$)' if s_elements[i][0].endswith('_UP')
+                  else s_elements[i][0]+'-$'+s_elements[i][j]+'$' for i, j in index]
     index_f = [(i, j-1) if j > 0 else (i, j) for i, j in index]
     return index_f, labels_elements
 
@@ -70,11 +71,11 @@ def bands(PLOT):
     with open(PLOT, "r") as main_file:
         lines = main_file.readlines()
     str0 = lines[0].split()
-    if len(str0) == 2 and str0[1] == "Energy-Level(eV)":
+    if len(str0) == 3 and str0[1] == "Spin-Up(eV)" and str0[2] == "Spin-down(eV)":
         nkps = re.sub(':', ' ', lines[1]).split()
         m, n = int(nkps[-2]), int(nkps[-1])
         arr = np.zeros(m)
-        bands = np.zeros((n,m))
+        ban = np.zeros((2,n,m))
         reverse = False
         for i in lines[2:]:
             str = i.split()
@@ -83,7 +84,7 @@ def bands(PLOT):
                 k = 0
             elif len(str) > 0:
                 if j == 1:
-                    arr[k], bands[0,k] = float(str[0]), float(str[1])
+                    arr[k], ban[0,0,k], ban[1,0,k] = float(str[0]), float(str[1]), float(str[2])
                     k += 1
                 else:
                     N = j - 1
@@ -96,16 +97,16 @@ def bands(PLOT):
                         K = m-k-1
                     else:
                         K = k
-                    bands[N,K] = float(str[1])
+                    ban[0,N,K], ban[1,N,K] = float(str[1]), float(str[2])
                     k += 1
             else:
                 pass
-        return arr, bands, "Noneispin"
-    elif len(str0) == 3 and str0[1] == "Spin-Up(eV)" and str0[2] == "Spin-down(eV)":
-        nkps = lines[1].split()
+        return arr, ban, "Ispin"
+    else:
+        nkps = re.sub(':', ' ', lines[1]).split()
         m, n = int(nkps[-2]), int(nkps[-1])
         arr = np.zeros(m)
-        bands = np.zeros((2,n,m))
+        ban = np.zeros((n,m))
         reverse = False
         for i in lines[2:]:
             str = i.split()
@@ -114,7 +115,7 @@ def bands(PLOT):
                 k = 0
             elif len(str) > 0:
                 if j == 1:
-                    arr[k], bands[0,0,k], bands[1,0,k] = float(str[0]), float(str[1]), float(str[2])
+                    arr[k], ban[0,k] = float(str[0]), float(str[1])
                     k += 1
                 else:
                     N = j - 1
@@ -127,13 +128,11 @@ def bands(PLOT):
                         K = m-k-1
                     else:
                         K = k
-                    bands[0,N,K], bands[1,N,K] = float(str[1]), float(str[2])
+                    ban[N,K] = float(str[1])
                     k += 1
             else:
                 pass
-        return arr, bands, "Ispin"
-    else:
-        pass
+        return arr, ban, "Noneispin"
 
 def symbols(POSCAR):
     with open(POSCAR, "r") as main_file:

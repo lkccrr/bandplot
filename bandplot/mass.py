@@ -103,10 +103,12 @@ def plot(data, calM, pltlabel, ticks, labels, legend, fig_p):
     plt.xlim(data[0,0],data[-1,0])
     plt.ylim(fig_p.vertical)
     plt.plot(data[:,0], data[:,1:], color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
+    L = plt.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
+    plt.gca().add_artist(L)
     for i in range(len(calM)):
         plt.plot(calM[i][0],calM[i][1], label='%7.3f'%pltlabel[i])
     plt.ylabel('Energy (eV)')
-    plt.legend(frameon=False, loc='upper left', alignment='left', title=legend[0]+'\n$LUMO$ & $HOMO$', title_fontproperties={'size':'medium'})
+    plt.legend(frameon=False, loc='upper left', alignment='left', title='$LUMO$ & $HOMO$', title_fontproperties={'size':'medium'})
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
 
 def plot2(data, calM_u, pltlabel_u, calM_d, pltlabel_d, ticks, labels, legend, fig_p):
@@ -126,7 +128,7 @@ def plot2(data, calM_u, pltlabel_u, calM_d, pltlabel_d, ticks, labels, legend, f
     ax1.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.set_yticklabels([])
-    L = ax1.legend([], frameon=False, loc='lower left', title=legend[0], title_fontproperties={'size':'medium'})
+    L = ax1.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     ax1.add_artist(L)
     if len(ticks) > 2:
         ticks[0],ticks[-1] = data[0,0,0],data[0,-1,0]

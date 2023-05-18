@@ -39,6 +39,7 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
     parser.add_argument('-w', "--linewidth",  type=str,             nargs='+', help="linewidth, default: 0.8", default=[])
     parser.add_argument('-m', "--mass",       action='store_true',  help='calculate the effective masses')
     parser.add_argument('-M', "--scale",      type=float,           help='the scale of data for effective masses calculation, default: 0.15', default=0.15)
+    parser.add_argument('-r', "--projected",  action='store_true',  help='plot the projected band structure')
     parser.add_argument('-i', "--input",      type=str,             nargs='+', help="plot figure from .dat file, default: BAND.dat", default=["BAND.dat"])
     parser.add_argument('-o', "--output",     type=str,             help="plot figure filename, default: BAND.png", default="BAND.png")
     parser.add_argument('-q', "--dpi",        type=int,             help="dpi of the figure, default: 500", default=500)
@@ -164,6 +165,26 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
                 print("ERROR: Input file mismatch.")
         else:
             print("ERROR: BAND_GAP file does not exist.")
+# plot Projected Band Structure
+    elif args.projected:
+        if not fig_p.vertical:
+            fig_p.vertical = [-5.0, 5.0]
+        bandfile = [f for i in ['PBAND_*.dat'] for f in glob.glob(i)] if len(args.input) == 1 and args.input[0] == 'BAND.dat' \
+                    else [f for i in args.input for f in glob.glob(i)]
+        if bandfile:
+            from bandplot import projected
+            darr, dbands, composition, s_elements = projected.bands(bandfile)
+            index_f, labels_elements = projected.select(s_elements, args.partial)
+            if len(index_f) > 0:
+                ispin = [0 if s_elements[i][0].endswith('_DW') else 1 for i, j in index_f]
+                if not elements:
+                    elements = labels_elements
+                if all(x == ispin[0] for x in ispin):
+                    projected.pplot(darr, dbands, composition, ticks, labels, index_f, elements, legend, fig_p)
+                else:
+                    projected.pplot2(darr, dbands, composition, ticks, labels, index_f, elements, ispin, legend, fig_p)
+            else:
+                print("ERROR: Input mismatch.")
 # plot Band Structure
     else:
         bandfile = [f for i in args.input for f in glob.glob(i)]
@@ -208,7 +229,7 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
                 plots.pdosfiles(darr, dele, index_f, elements, legend, fig_p)
             else:
                 print("ERROR: No *.dat file.")
-# compare two Band structures
+# compare two Band Structures
         elif len_bandfile == 2:
             if not fig_p.vertical:
                 fig_p.vertical = [-5.0, 5.0]
@@ -224,7 +245,7 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
                 plots.Noneispin2(arr, bands, ticks, labels, legend, fig_p)
             elif all(x == "Ispin" for x in ispin):
                 plots.Dispin2(arr, bands, ticks, labels, legend, fig_p)
-# compare three Band structures
+# compare three Band Structures
         elif len_bandfile == 3:
             if not fig_p.vertical:
                 fig_p.vertical = [-5.0, 5.0]
@@ -377,7 +398,7 @@ pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -g \$\\pi^2_4\
             pplots.dosfile(darr, dele, elements, legend, fig_p)
         else:
             print('No *.dat file.')
-# compare two Phonon Band structures
+# compare two Phonon Band Structures
     elif len_bandfile == 2:
         arr = [''] * 2
         fre = [''] * 2
@@ -395,7 +416,7 @@ pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -g \$\\pi^2_4\
             pplots.Nobroken2(arr, fre, ticks[0], labels, legend, fig_p)
         else:
             pplots.Broken2(arr, fre, ticks[0], labels, broken, legend, fig_p)
-# compare three Phonon Band structures
+# compare three Phonon Band Structures
     elif len_bandfile == 3:
         arr = [''] * 3
         fre = [''] * 3
