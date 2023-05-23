@@ -85,7 +85,7 @@ def Broken2(arr, fre, ticks, labels, broken, legend, fig_p):
     ax2_f.set_ylim(vertical[0], broken[0])
     ax2_f.axis('off')
 
-    L = ax2.legend([], frameon=False, loc='upper left', title=legend[0], title_fontproperties={'size':'medium'})
+    L = ax2.legend([], frameon=False, loc='best', bbox_to_anchor=(0., 0.5, 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     ax2.add_artist(L)
     ax2.legend([f[0], g[0]], [legend[1], legend[2]], frameon=False, prop={'size':'medium'}, loc=fig_p.location)
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
@@ -150,7 +150,7 @@ def Broken3(arr, fre, ticks, labels, broken, legend, fig_p):
     ax2_g.set_ylim(vertical[0], broken[0])
     ax2_g.axis('off')
 
-    L = ax2.legend([], frameon=False, loc='upper left', title=legend[0], title_fontproperties={'size':'medium'})
+    L = ax2.legend([], frameon=False, loc='best', bbox_to_anchor=(0., 0.5, 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     ax2.add_artist(L)
     ax2.legend([f[0], g[0], h[0]], [legend[1], legend[2], legend[3]], frameon=False, prop={'size':'medium'}, loc=fig_p.location)
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
@@ -204,7 +204,7 @@ def Nobroken2(arr, fre, ticks, labels, legend, fig_p):
     ax.set_ylim(ylim)
     ax.axis('off')
 
-    L = plt.legend([], frameon=False, loc='upper left', title=legend[0], title_fontproperties={'size':'medium'})
+    L = plt.legend([], frameon=False, loc='best', bbox_to_anchor=(0., 0.5, 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     plt.gca().add_artist(L)
     plt.legend([f[0], g[0]], [legend[1], legend[2]], frameon=False, prop={'size':'medium'}, loc=fig_p.location)
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
@@ -244,7 +244,7 @@ def Nobroken3(arr, fre, ticks, labels, legend, fig_p):
     af.set_ylim(ylim)
     af.axis('off')
 
-    L = plt.legend([], frameon=False, loc='upper left', title=legend[0], title_fontproperties={'size':'medium'})
+    L = plt.legend([], frameon=False, loc='best', bbox_to_anchor=(0., 0.5, 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     plt.gca().add_artist(L)
     plt.legend([f[0], g[0], h[0]], [legend[1], legend[2], legend[3]], frameon=False, prop={'size':'medium'}, loc=fig_p.location)
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')

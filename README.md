@@ -18,6 +18,7 @@ bandplot -h
 bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z
 bandplot -i BAND1.dat BAND2.dat -g TiO\$_2\$ PBE HSE
 bandplot -b -l g m k g -y -3 3
+bandplot -r -i PBAND*.dat -p C,O-s,p
 ```
 ***
 <b style="color:blue;"><i>pbandplot</b></i>

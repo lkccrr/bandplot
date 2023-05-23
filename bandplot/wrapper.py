@@ -1,4 +1,4 @@
-import argparse, os, re, platform, glob
+import ast, argparse, os, re, platform, glob
 import matplotlib.pyplot as plt
 from bandplot import plots, pplots, readdata
 from bandplot import __version__
@@ -37,8 +37,7 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
     parser.add_argument('-k', "--linestyle",  type=str,             nargs='+', help="linestyle: solid, dashed, dashdot, dotted or tuple; default: solid",
                                                                                     default=[])
     parser.add_argument('-w', "--linewidth",  type=str,             nargs='+', help="linewidth, default: 0.8", default=[])
-    parser.add_argument('-m', "--mass",       action='store_true',  help='calculate the effective masses')
-    parser.add_argument('-M', "--scale",      type=float,           help='the scale of data for effective masses calculation, default: 0.15', default=0.15)
+    parser.add_argument('-m', "--mass",       type=float,           nargs='*', help='calculate the effective masses, default: 0.15', default=None)
     parser.add_argument('-r', "--projected",  action='store_true',  help='plot the projected band structure')
     parser.add_argument('-i', "--input",      type=str,             nargs='+', help="plot figure from .dat file, default: BAND.dat", default=["BAND.dat"])
     parser.add_argument('-o', "--output",     type=str,             help="plot figure filename, default: BAND.png", default="BAND.png")
@@ -51,8 +50,7 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
     parser.add_argument('-p', "--partial",    type=str,             nargs='+', default=[], help='the partial DOS to plot, s p d, or symbol-s,p,d')
     parser.add_argument('-e', "--elements",   type=str,             nargs='+', default=[], help="PDOS labels")
     parser.add_argument('-W', "--wratios",    type=float,           help='width ratio for DOS subplot')
-    parser.add_argument('-z', "--fill",       action='store_true',  help='fill a shaded region between PDOS and axis')
-    parser.add_argument('-Z', "--alpha",      type=float,           help='alpha value for filling region, default=0.2', default=0.2)
+    parser.add_argument('-z', "--fill",       type=float,           nargs='*', help='fill a shaded region between PDOS and axis, default: 0.2', default=None)
     parser.add_argument('-f', "--font",       type=str,             help="font to use", default='STIXGeneral')
 
     args = parser.parse_args()
@@ -65,27 +63,22 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
     for i in args.color:
         j = i.split('*')
         if len(j) == 2:
-            color = color + [j[0]] * int(j[1])
+            color += [ast.literal_eval(j[0])] * int(j[1]) if '(' in j[0] and ')' in j[0] else [j[0]] * int(j[1])
         else:
-            color.append(i)
+            color += [ast.literal_eval(i)] if '(' in i and ')' in i else [i]
 
     linestyle = []
     for i in args.linestyle:
-        if len(i) > 2 and i[0] == '(' and i[-1] == ')':
-            linestyle.append(eval(i))
-        elif len(i.split('*')) == 2:
-            j = i.split('*')
-            linestyle = linestyle + [j[0]] * int(j[1])
+        j = i.split('*')
+        if len(j) == 2:
+            linestyle += [ast.literal_eval(j[0])] * int(j[1]) if '(' in j[0] and ')' in j[0] else [j[0]] * int(j[1])
         else:
-            linestyle.append(i)
+            linestyle += [ast.literal_eval(i)] if '(' in i and ')' in i else [i]
 
     linewidth = []
     for i in args.linewidth:
-        if len(i.split('*')) == 2:
-            j = i.split('*')
-            linewidth = linewidth + [float(j[0])] * int(j[1])
-        else:
-            linewidth.append(float(i))
+        j = i.split('*')
+        linewidth += [float(j[0])] * int(j[1]) if len(j) == 2 else [float(i)]
 
     plt.rcParams['font.family'] = '%s'%args.font
 
@@ -122,16 +115,17 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
                     color=color, linestyle=linestyle, linewidth=linewidth, location=args.location, dpi=args.dpi,
                     width_ratios=width_ratios, exchange=args.exchange, fill=args.fill)
 # calculate the effective masses
-    if args.mass:
+    if args.mass is not None:
         if not fig_p.vertical:
             fig_p.vertical = [-5.0, 5.0]
+        scale = 0.15 if args.mass == [] else args.mass[0]
         from bandplot import mass
         if os.path.exists("BAND_GAP"):
             lumo, homo, homo_c, filename = mass.get_vbm_cbm("BAND_GAP")
             Extension = [len(lumo), len(homo), len(homo_c), len(filename)]
             if all(x == 1 for x in Extension):
                 data = mass.bs_dat_read(filename)
-                calM = mass.dat_read(data[0], lumo[0], homo[0], homo_c[0], args.scale)
+                calM = mass.dat_read(data[0], lumo[0], homo[0], homo_c[0], scale)
                 pltlabel = mass.npfit(calM)
                 mass.plot(data[0], calM, pltlabel, ticks, labels, legend, fig_p)
                 print("{:<8}{:<8}{:<8}{:<8}{:<8}{:<8}".format("e_x","e_y","h1_x","h1_y","h2_x","h2_y"))
@@ -143,8 +137,8 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
                 print()
             elif all(x == 2 for x in Extension):
                 data = mass.bs_dat_read(filename)
-                calM_u = mass.dat_read(data[0], lumo[0], homo[0], homo_c[0], args.scale)
-                calM_d = mass.dat_read(data[1], lumo[1], homo[1], homo_c[1], args.scale)
+                calM_u = mass.dat_read(data[0], lumo[0], homo[0], homo_c[0], scale)
+                calM_d = mass.dat_read(data[1], lumo[1], homo[1], homo_c[1], scale)
                 pltlabel_u = mass.npfit(calM_u)
                 pltlabel_d = mass.npfit(calM_d)
                 mass.plot2(data, calM_u, pltlabel_u, calM_d, pltlabel_d, ticks, labels, legend, fig_p)
@@ -205,8 +199,8 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
                 index_f, labels_elements = readdata.select(s_elements, args.partial)
                 if not elements:
                     elements = labels_elements
-                if fig_p.fill:
-                    fig_p.fill = args.alpha
+                if fig_p.fill is not None:
+                    fig_p.fill = 0.2 if fig_p.fill == [] else fig_p.fill[0]
 
                 if ispin == "Noneispin":
                     plots.NoneispinWd(arr, bands, ticks, labels, darr, dele, index_f, elements, legend, fig_p)
@@ -223,8 +217,8 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
                 index_f, labels_elements = readdata.select(s_elements, args.partial)
                 if not elements:
                     elements = labels_elements
-                if fig_p.fill:
-                    fig_p.fill = args.alpha
+                if fig_p.fill is not None:
+                    fig_p.fill = 0.2 if fig_p.fill == [] else fig_p.fill[0]
 
                 plots.pdosfiles(darr, dele, index_f, elements, legend, fig_p)
             else:
@@ -297,39 +291,33 @@ pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -g \$\\pi^2_4\
     parser.add_argument('-n', "--exchange",   action='store_true',  help="exchange the x and y axes of Phonon DOS")
     parser.add_argument('-e', "--elements",   type=str,             nargs='+', default=[], help="PDOS labels")
     parser.add_argument('-W', "--wratios",    type=float,           help='width ratio for DOS subplot, default 0.5', default=0.5)
-    parser.add_argument('-z', "--fill",       action='store_true',  help='fill a shaded region between PDOS and axis')
-    parser.add_argument('-Z', "--alpha",      type=float,           help='alpha value for filling region, default=0.2', default=0.2)
+    parser.add_argument('-z', "--fill",       type=float,           nargs='*', help='fill a shaded region between PDOS and axis, default: 0.2', default=None)
     parser.add_argument('-f', "--font",       type=str,             help="font to use", default='STIXGeneral')
 
     args = parser.parse_args()
 
     labels = [re.sub("'|‘|’", '′', re.sub('"|“|”', '″', re.sub('^GA[A-Z]+$|^G$', 'Γ', i))) for i in args.labels]
     elements = [re.sub("'|‘|’", '′', re.sub('"|“|”', '″', i)) for i in args.elements]
-    color  = []
+    color = []
     for i in args.color:
         j = i.split('*')
         if len(j) == 2:
-            color = color + [j[0]] * int(j[1])
+            color += [ast.literal_eval(j[0])] * int(j[1]) if '(' in j[0] and ')' in j[0] else [j[0]] * int(j[1])
         else:
-            color.append(i)
+            color += [ast.literal_eval(i)] if '(' in i and ')' in i else [i]
 
     linestyle = []
     for i in args.linestyle:
-        if len(i) > 2 and i[0] == '(' and i[-1] == ')':
-            linestyle.append(eval(i))
-        elif len(i.split('*')) == 2:
-            j = i.split('*')
-            linestyle = linestyle + [j[0]] * int(j[1])
+        j = i.split('*')
+        if len(j) == 2:
+            linestyle += [ast.literal_eval(j[0])] * int(j[1]) if '(' in j[0] and ')' in j[0] else [j[0]] * int(j[1])
         else:
-            linestyle.append(i)
+            linestyle += [ast.literal_eval(i)] if '(' in i and ')' in i else [i]
 
     linewidth = []
     for i in args.linewidth:
-        if len(i.split('*')) == 2:
-            j = i.split('*')
-            linewidth = linewidth + [float(j[0])] * int(j[1])
-        else:
-            linewidth.append(float(i))
+        j = i.split('*')
+        linewidth += [float(j[0])] * int(j[1]) if len(j) == 2 else [float(i)]
 
     plt.rcParams['font.family'] = '%s'%args.font
     pltname = os.path.split(os.getcwd())[-1]
@@ -381,8 +369,8 @@ pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -g \$\\pi^2_4\
                 pplots.Broken(arr, fre, ticks, labels, broken, legend, fig_p)
         elif os.path.exists(args.dos):
             darr, dele = readdata.pdos(args.dos)
-            if fig_p.fill:
-                fig_p.fill = args.alpha
+            if fig_p.fill is not None:
+                fig_p.fill = 0.2 if fig_p.fill == [] else fig_p.fill[0]
             if args.broken is None:
                 pplots.NobrokenWd(arr, fre, ticks, labels, darr, dele, elements, legend, fig_p)
             else:
@@ -393,8 +381,8 @@ pbandplot -i BAND.dat -o BAND.png -l g m k g -d projected_dos.dat -g \$\\pi^2_4\
             if fig_p.output == "BAND.png":
                     fig_p.output = "DOS.png"
             darr, dele = readdata.pdos(args.dos)
-            if fig_p.fill:
-                fig_p.fill = args.alpha
+            if fig_p.fill is not None:
+                fig_p.fill = 0.2 if fig_p.fill == [] else fig_p.fill[0]
             pplots.dosfile(darr, dele, elements, legend, fig_p)
         else:
             print('No *.dat file.')
