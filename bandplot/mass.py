@@ -93,6 +93,9 @@ def plot(data, calM, pltlabel, ticks, labels, legend, fig_p):
     color = fig_p.color or ['red']
     linestyle = fig_p.linestyle or [':']
     linewidth = fig_p.linewidth or [0.8]
+    location  = fig_p.location or [1, 2]
+    if len(location) == 1:
+        location = [location[0], 2]
     plt.tick_params(axis='y', which='minor', color='gray')
     plt.axhline(linewidth=0.4, linestyle='-.', c='gray')
     if len(ticks) > 2:
@@ -103,12 +106,12 @@ def plot(data, calM, pltlabel, ticks, labels, legend, fig_p):
     plt.xlim(data[0,0],data[-1,0])
     plt.ylim(fig_p.vertical)
     plt.plot(data[:,0], data[:,1:], color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
-    L = plt.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
+    L = plt.legend([], frameon=False, loc=location[0], bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     plt.gca().add_artist(L)
     for i in range(len(calM)):
         plt.plot(calM[i][0],calM[i][1], label='%7.3f'%pltlabel[i])
     plt.ylabel('Energy (eV)')
-    plt.legend(frameon=False, loc='upper left', alignment='left', title='$LUMO$ & $HOMO$', title_fontproperties={'size':'medium'})
+    plt.legend(frameon=False, loc=location[1], alignment='left', title='$LUMO$ & $HOMO$', title_fontproperties={'size':'medium'})
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
 
 def plot2(data, calM_u, pltlabel_u, calM_d, pltlabel_d, ticks, labels, legend, fig_p):
@@ -117,25 +120,27 @@ def plot2(data, calM_u, pltlabel_u, calM_d, pltlabel_d, ticks, labels, legend, f
     color = fig_p.color or ['darkred', 'red']
     linestyle = fig_p.linestyle or [':', ':']
     linewidth = fig_p.linewidth or [0.8, 0.8]
+    location  = fig_p.location or [1, 2, 2]
     if len(color) == 1:
         color = [color[0], 'red']
     if len(linestyle) == 1:
         linestyle = [linestyle[0], ':']
     if len(linewidth) == 1:
         linewidth = [linewidth[0], 0.8]
+    if len(location) < 3:
+        location += [2] * (3 - len(location))
     ax1.tick_params(axis='y', which='minor', color='gray')
     ax2.tick_params(axis='y', which='minor', color='gray')
     ax1.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.axhline(linewidth=0.4, linestyle='-.', c='gray')
     ax2.set_yticklabels([])
-    L = ax1.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
+    L = ax1.legend([], frameon=False, loc=location[0], bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     ax1.add_artist(L)
     if len(ticks) > 2:
         ticks[0],ticks[-1] = data[0,0,0],data[0,-1,0]
         for i in ticks[1:-1]:
             ax1.axvline(i, linewidth=0.4, linestyle='-.', c='gray')
             ax2.axvline(i, linewidth=0.4, linestyle='-.', c='gray')
-
     ax1.set_xlim(data[0,0,0], data[0,-1,0])
     ax1.set_ylim(fig_p.vertical)
     ax2.set_xlim(data[1,0,0], data[1,-1,0])
@@ -152,7 +157,7 @@ def plot2(data, calM_u, pltlabel_u, calM_d, pltlabel_d, ticks, labels, legend, f
         ax1.plot(calM_u[i,0], calM_u[i,1], label='%7.3f'%pltlabel_u[i])
     for i in range(len(calM_d)):
         ax2.plot(calM_d[i,0], calM_d[i,1], label='%7.3f'%pltlabel_d[i])
-    ax1.legend(frameon=False, loc='upper left', alignment='left', title='$LUMO$ & $HOMO$', title_fontproperties={'size':'small'})
-    ax2.legend(frameon=False, loc='upper left', alignment='left', title='$LUMO$ & $HOMO$', title_fontproperties={'size':'small'})
+    ax1.legend(frameon=False, loc=location[1], alignment='left', title='$LUMO$ & $HOMO$', title_fontproperties={'size':'small'})
+    ax2.legend(frameon=False, loc=location[2], alignment='left', title='$LUMO$ & $HOMO$', title_fontproperties={'size':'small'})
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
 

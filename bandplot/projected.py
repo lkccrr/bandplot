@@ -105,12 +105,13 @@ def pplot(darr, dbands, composition, ticks, labels, index_f, elements, legend, f
     color = fig_p.color or ['dimgray', 'b']
     linestyle = fig_p.linestyle or ['-']
     linewidth = fig_p.linewidth or [0.1]
+    location  = fig_p.location + [0] * (2 - len(fig_p.location)) if len(fig_p.location) < 2 else fig_p.location
     num = len(index_f)
     if len(color) == 1:
         color = [color[0], 'b']
 
     plt.plot(darr[0], dbands[0].T, color=color[0], linewidth=linewidth[0], linestyle=linestyle[0])
-    L = plt.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
+    L = plt.legend([], frameon=False, loc=location[0], bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     plt.gca().add_artist(L)
     plt.tick_params(axis='y', which='minor', color='gray')
     plt.axhline(linewidth=0.4, linestyle='-.', c='gray')
@@ -136,7 +137,7 @@ def pplot(darr, dbands, composition, ticks, labels, index_f, elements, legend, f
     p = [''] * n
     for x in range(n):
         p[x] = plt.scatter(darr[0], bands[x,:], compositions[x,:] * 20, color=color[1], marker='o', facecolor='none', linewidth=0.4)
-    plt.legend([p[0]], [elem], frameon=False, prop={'size':'medium'}, loc=fig_p.location, markerfirst=False, markerscale=1.5)
+    plt.legend([p[0]], [elem], frameon=False, prop={'size':'medium'}, loc=location[1], markerfirst=False, markerscale=1.5)
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
 
 def pplot2(darr, dbands, composition, ticks, labels, index_f, elements, ispin, legend, fig_p):
@@ -145,6 +146,7 @@ def pplot2(darr, dbands, composition, ticks, labels, index_f, elements, ispin, l
     color = fig_p.color or ['dimgray', 'darkblue', 'b', 'r']
     linestyle = fig_p.linestyle or ['-'] * 2
     linewidth = fig_p.linewidth or [0.1] * 2
+    location  = fig_p.location + [0] * (3 - len(fig_p.location)) if len(fig_p.location) < 3 else fig_p.location
     num = len(index_f)
     ax1.tick_params(axis='y', which='minor', color='gray')
     ax2.tick_params(axis='y', which='minor', color='gray')
@@ -166,7 +168,7 @@ def pplot2(darr, dbands, composition, ticks, labels, index_f, elements, ispin, l
         ax1.set_xticks(ticks,labels)
     ax2.set_xticks(ticks,labels)
     ax1.set_ylabel('Energy (eV)')
-    L = ax1.legend([], frameon=False, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
+    L = ax1.legend([], frameon=False, loc=location[0], bbox_to_anchor=(0.5, 0., 0.5, 0.5), title=legend[0], title_fontproperties={'size':'medium'})
     ax1.add_artist(L)
     m = len(elements)
     elements =  elements + [''] * (num - m) if m < num else elements[:num]
@@ -200,7 +202,7 @@ def pplot2(darr, dbands, composition, ticks, labels, index_f, elements, ispin, l
         p[x] = ax1.scatter(darr[0], bands_u[x,:], compositions_u[x,:] * 20, color=color[2], marker='o', facecolor='none', linewidth=0.4)
     for x in range(m):
         o[x] = ax2.scatter(darr[0], bands_d[x,:], compositions_d[x,:] * 20, color=color[3], marker='o', facecolor='none', linewidth=0.4)
-    ax1.legend([p[0]], [elem1], frameon=False, prop={'size':'small'}, loc=fig_p.location, markerfirst=False, markerscale=1.5)
-    ax2.legend([o[0]], [elem2], frameon=False, prop={'size':'small'}, loc=fig_p.location, markerfirst=False, markerscale=1.5)
+    ax1.legend([p[0]], [elem1], frameon=False, prop={'size':'small'}, loc=location[1], markerfirst=False, markerscale=1.5)
+    ax2.legend([o[0]], [elem2], frameon=False, prop={'size':'small'}, loc=location[2], markerfirst=False, markerscale=1.5)
     plt.savefig(fig_p.output, dpi=fig_p.dpi, transparent=True, bbox_inches='tight')
 
