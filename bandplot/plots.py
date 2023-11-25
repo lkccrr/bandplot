@@ -471,11 +471,11 @@ def pdosfiles(darr, dele, index_f, elements, legend, fig_p):
     else:
         for i in range(num):
             if color[i]:
-                p_dos += plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i], color=color[i])
+                p_dos += plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i], linestyle=linestyle[i], color=color[i])
                 if fig_p.fill:
                     plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, color=color[i], alpha=fig_p.fill)
             else:
-                p_dos += plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=0.8, linestyle=linestyle[i])
+                p_dos += plt.plot(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], linewidth=linewidth[i], linestyle=linestyle[i])
                 if fig_p.fill:
                     plt.fill_between(dele[index_f[i][0]].T[index_f[i][1]], darr[index_f[i][0]], 0, alpha=fig_p.fill)
         plt.tick_params(axis='x', labelsize='medium', labelcolor='dimgray')

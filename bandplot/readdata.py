@@ -29,7 +29,7 @@ def dos(DOS):
         ele = dat[:, 1:]
         ARR.append(arr)
         ELE.append(ele)
-        s_elements.append([re.sub('.dat$|^.+PDOS_|^.+/', '', pdos)] + first_line.split()[1:])
+        s_elements.append([re.sub('.dat$|^.+DOS_|^.+/', '', pdos)] + first_line.split()[1:])
     return ARR, ELE, s_elements
 
 def select(s_elements, partial):

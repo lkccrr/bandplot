@@ -5,7 +5,7 @@ setup(
     name='bandplot',
     version=__version__,
     author='kan',
-    author_email='luokan@hrbeu.edu.cn',
+    author_email='luo_kan+pypi@outlook.com',
     python_requires='>=3.6',
     license='MIT',
     license_files=('LICENSE'),

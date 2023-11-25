@@ -64,6 +64,8 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
             dosfiles = [f for i in args.dos for f in glob.glob(i)]
     else:
         dosfiles = None
+    if dosfiles:
+        dosfiles.sort()
 
     color = []
     for i in args.color:
@@ -202,7 +204,7 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
                 elif ispin == "Ispin" and args.divided:
                     plots.Dispin(arr, bands, ticks, labels, legend, fig_p)
             else:
-                darr, dele, s_elements = readdata.dos(args.dos)
+                darr, dele, s_elements = readdata.dos(dosfiles)
                 index_f, labels_elements = readdata.select(s_elements, args.partial)
                 if not elements:
                     elements = labels_elements
@@ -260,7 +262,7 @@ bandplot -i BAND.dat -o BAND.png -l g m k g -d PDOS* -z -p C-s,p Ti-d
         else:
             print("Input file mismatch.")
 
-# bandplot
+# pbandplot
 def pmain():
     parser = argparse.ArgumentParser(description='Plot the phonon band structure or DOS from phonopy results.',
                                      epilog='''
